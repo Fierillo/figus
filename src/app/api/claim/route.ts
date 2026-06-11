@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
   // ── Verify ownership on Nostr relay ─────────────────────────────────────────
   const issuerPubkey = process.env.NEXT_PUBLIC_ISSUER_PUBKEY ?? "";
   if (issuerPubkey) {
-    const owned = await fetchOwnedStickers(pubkey, issuerPubkey);
+    const owned = await fetchOwnedStickers(pubkey, issuerPubkey, requiredNums);
     const missing = requiredNums.filter((n) => !owned.has(n));
     if (missing.length > 0) {
       return err(
@@ -166,8 +166,13 @@ async function getInvoice(lnAddress: string, amountSats: number): Promise<string
   return invData.pr;
 }
 
-async function fetchOwnedStickers(pubkey: string, issuerPubkey: string): Promise<Set<number>> {
+// Verifica solo los stickers requeridos usando el tag #d exacto, evitando el
+// límite interno del relay al pedir todos los 30100 de un usuario con muchas figus.
+async function fetchOwnedStickers(pubkey: string, issuerPubkey: string, requiredNums: number[]): Promise<Set<number>> {
   const owned = new Set<number>();
+  const albumId = process.env.NEXT_PUBLIC_ALBUM_ID ?? "mundial-2026";
+  const dTags = requiredNums.map((n) => `${pubkey}:${albumId}:${n}`);
+
   const relays = (process.env.NEXT_PUBLIC_RELAYS ?? "wss://relay.damus.io,wss://nos.lol")
     .split(",")
     .map((r) => r.trim())
@@ -177,12 +182,11 @@ async function fetchOwnedStickers(pubkey: string, issuerPubkey: string): Promise
     try {
       const events = await fetchNostrEvents(
         relay,
-        { kinds: [30100], authors: [issuerPubkey], "#p": [pubkey] },
+        { kinds: [30100], authors: [issuerPubkey], "#d": dTags },
         10_000
       );
-      // Keep only the latest event per sticker (addressable).
-      // Verify each event's signature AND that the issuer actually signed it (Fix #3):
-      // a malicious relay could otherwise return forged ownership for an attacker.
+      // Keep only the latest event per d-tag. Verify issuer signature to prevent
+      // relay injection attacks.
       const latest = new Map<string, { tags: string[][] }>();
       for (const ev of events as { pubkey: string; tags: string[][]; created_at: number }[]) {
         if (ev.pubkey !== issuerPubkey) continue;
@@ -197,7 +201,7 @@ async function fetchOwnedStickers(pubkey: string, issuerPubkey: string): Promise
         const count   = Number(ev.tags.find((t) => t[0] === "count")?.[1] ?? "0");
         if (sticker && count > 0) owned.add(Number(sticker.split(":")[1]));
       }
-      if (owned.size > 0) break; // Got data from this relay — no need to query more
+      if (owned.size > 0) break;
     } catch {}
   }
   return owned;
