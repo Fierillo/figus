@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyEvent } from "nostr-tools/pure";
 import type { Event } from "nostr-tools";
+import fs from "fs";
+import path from "path";
 import { nwcPayServer, fetchNostrEvents } from "@/lib/nwc-server";
 import { hasClaimed, markClaimed } from "@/lib/claim-ledger";
 import { PAGES, ALL_NUMBERS } from "@/lib/catalog";
@@ -166,17 +168,30 @@ async function getInvoice(lnAddress: string, amountSats: number): Promise<string
   return invData.pr;
 }
 
-// Verifica solo los stickers requeridos usando el tag #d exacto, evitando el
-// límite interno del relay al pedir todos los 30100 de un usuario con muchas figus.
+// Lee el ownership directamente del cache local del issuer (data/ownership.json).
+// El issuer es el único autor de los 30100 — su espejo local es autoritativo y
+// no depende de que los relays externos estén disponibles o sin límite.
+// Fallback a relay query si el archivo no existe (setup inicial sin cache).
 async function fetchOwnedStickers(pubkey: string, issuerPubkey: string, requiredNums: number[]): Promise<Set<number>> {
   const owned = new Set<number>();
+
+  // ── Opción A: cache local (mismo servidor que el issuer) ──────────────────
+  try {
+    const ownershipPath = path.join(process.cwd(), "data", "ownership.json");
+    const raw = JSON.parse(fs.readFileSync(ownershipPath, "utf-8")) as Record<string, number>;
+    for (const num of requiredNums) {
+      if ((raw[`${pubkey}:${num}`] ?? 0) > 0) owned.add(num);
+    }
+    return owned; // archivo existe → es la fuente de verdad
+  } catch {
+    // El archivo no existe todavía (primera vez) — caer a relays
+  }
+
+  // ── Opción B: fallback — query por relay ──────────────────────────────────
   const albumId = process.env.NEXT_PUBLIC_ALBUM_ID ?? "mundial-2026";
   const dTags = requiredNums.map((n) => `${pubkey}:${albumId}:${n}`);
-
   const relays = (process.env.NEXT_PUBLIC_RELAYS ?? "wss://relay.damus.io,wss://nos.lol")
-    .split(",")
-    .map((r) => r.trim())
-    .filter(Boolean);
+    .split(",").map((r) => r.trim()).filter(Boolean);
 
   for (const relay of relays) {
     try {
@@ -185,8 +200,6 @@ async function fetchOwnedStickers(pubkey: string, issuerPubkey: string, required
         { kinds: [30100], authors: [issuerPubkey], "#d": dTags },
         10_000
       );
-      // Keep only the latest event per d-tag. Verify issuer signature to prevent
-      // relay injection attacks.
       const latest = new Map<string, { tags: string[][] }>();
       for (const ev of events as { pubkey: string; tags: string[][]; created_at: number }[]) {
         if (ev.pubkey !== issuerPubkey) continue;
