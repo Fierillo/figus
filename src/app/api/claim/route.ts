@@ -4,7 +4,7 @@ import type { Event } from "nostr-tools";
 import fs from "fs";
 import path from "path";
 import { nwcPayServer, fetchNostrEvents } from "@/lib/nwc-server";
-import { hasClaimed, markClaimed } from "@/lib/claim-ledger";
+import { hasClaimed, reserveClaim, confirmClaim, releaseClaim } from "@/lib/claim-ledger";
 import { PAGES, ALL_NUMBERS } from "@/lib/catalog";
 
 const REWARD_PAGE_SATS  = Number(process.env.REWARD_PAGE_SATS  || "210");
@@ -71,9 +71,13 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Modo de pagos de premios. "mock" = SOLO para tests locales: registra el
+  // reclamo sin emitir factura ni pagar sats reales (análogo a ISSUER_PAYMENTS).
+  const mock = (process.env.REWARD_PAYMENTS || "").toLowerCase() === "mock";
+
   // ── NWC config check ────────────────────────────────────────────────────────
   const nwcStr = process.env.REWARD_NWC;
-  if (!nwcStr) return err("Premios no configurados en el servidor", 503);
+  if (!mock && !nwcStr) return err("Premios no configurados en el servidor", 503);
 
   // ── Get user's lightning address from Nostr profile ──────────────────────────
   const lud16 = await fetchUserLud16(pubkey);
@@ -85,23 +89,41 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // ── Reserva atómica ANTES de pagar (anti doble-claim concurrente) ────────────
+  // Cierra la ventana entre el chequeo y el pago: dos requests simultáneos para
+  // la misma página no pueden reservar los dos, así que solo uno paga.
+  if (!reserveClaim(pubkey, pageId, amountSats)) {
+    return err("Ya reclamaste este premio anteriormente", 409);
+  }
+
+  // ── Modo mock: confirma sin pago real ────────────────────────────────────────
+  if (mock) {
+    confirmClaim(pubkey, pageId);
+    return NextResponse.json({
+      ok: true,
+      message: `🧪 [mock] Premio de ${amountSats} sats registrado para ${lud16} (sin pago real)`,
+    });
+  }
+
   // ── Generate invoice via LNURL-pay ──────────────────────────────────────────
   let invoice: string;
   try {
     invoice = await getInvoice(lud16, amountSats);
   } catch (e: any) {
+    releaseClaim(pubkey, pageId); // el pago no salió — liberar para reintentar
     return err(`No se pudo generar la factura Lightning: ${e.message}`, 502);
   }
 
   // ── Pay via reward NWC ──────────────────────────────────────────────────────
   try {
-    await nwcPayServer(invoice, nwcStr);
+    await nwcPayServer(invoice, nwcStr!);
   } catch (e: any) {
+    releaseClaim(pubkey, pageId);
     return err(`Error al enviar el pago: ${e.message}`, 502);
   }
 
-  // ── Record claim ────────────────────────────────────────────────────────────
-  markClaimed(pubkey, pageId, amountSats);
+  // ── Confirmar el reclamo (pago exitoso) ──────────────────────────────────────
+  confirmClaim(pubkey, pageId);
 
   return NextResponse.json({
     ok: true,
