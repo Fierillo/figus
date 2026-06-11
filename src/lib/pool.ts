@@ -1,5 +1,6 @@
 import { SimplePool, type Event, type Filter } from "nostr-tools";
 import { RELAYS } from "./constants";
+import { getExtraRelays } from "./relaySync";
 
 // Pool único compartido en el cliente
 let pool: SimplePool | null = null;
@@ -9,14 +10,17 @@ export function getPool(): SimplePool {
   return pool;
 }
 
+// Relays base + los que el usuario agregó (resiliencia): las suscripciones y
+// publicaciones de la app usan el set completo.
 export function getRelays(): string[] {
-  return RELAYS;
+  if (typeof window === "undefined") return RELAYS;
+  return [...new Set([...RELAYS, ...getExtraRelays()])];
 }
 
 // Pre-establish WebSocket connections to all relays so the first real query is fast
 export function warmupRelays(): void {
   const p = getPool();
-  const sub = p.subscribeMany(RELAYS, { kinds: [0], limit: 0 } as Filter, { onevent: () => {} });
+  const sub = p.subscribeMany(getRelays(), { kinds: [0], limit: 0 } as Filter, { onevent: () => {} });
   setTimeout(() => sub.close(), 3000);
 }
 
@@ -26,7 +30,7 @@ export function warmupRelays(): void {
 export async function list(filters: Filter[], maxWait = 2000): Promise<Event[]> {
   const p = getPool();
   const results = await Promise.all(
-    filters.map((f) => p.querySync(RELAYS, f, { maxWait }))
+    filters.map((f) => p.querySync(getRelays(), f, { maxWait }))
   );
   const byId = new Map<string, Event>();
   for (const arr of results) for (const ev of arr) byId.set(ev.id, ev);
@@ -39,7 +43,7 @@ export function subscribeOne(
   onevent: (ev: Event) => void
 ): () => void {
   const p = getPool();
-  const sub = p.subscribeMany(RELAYS, filter, { onevent });
+  const sub = p.subscribeMany(getRelays(), filter, { onevent });
   return () => sub.close();
 }
 

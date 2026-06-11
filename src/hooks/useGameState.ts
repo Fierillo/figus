@@ -10,6 +10,7 @@ import {
   parseSettlement,
 } from "@/lib/parsers";
 import { onlyFromIssuer, isSelfSigned } from "@/lib/verify";
+import { backupEvents } from "@/lib/figuDb";
 import type { Listing, Ownership, Settlement } from "@/lib/types";
 import { ALL_NUMBERS } from "@/lib/catalog";
 
@@ -122,6 +123,9 @@ export function useGameState(pubkey: string | null) {
         if (!cancelled) {
           // Solo confiamos en eventos con firma válida del issuer (Fix #3).
           ownEvents.current = onlyFromIssuer(owns);
+          // Respaldo local pasivo: las pruebas de tenencia quedan en IndexedDB
+          // aunque los relays las pierdan (se republican desde Configuración).
+          backupEvents(pubkey, ownEvents.current).catch(() => {});
           const validGrants = onlyFromIssuer(grants);
           const validFreeClaims = freeClaims.filter(isSelfSigned);
           const claimed = validGrants.length > 0 || validFreeClaims.length > 0 || isLocalClaimed(pubkey);
@@ -178,6 +182,7 @@ export function useGameState(pubkey: string | null) {
             (ev) => {
               if (!onlyFromIssuer([ev]).length) return; // descartar inyecciones (Fix #3)
               ownEvents.current = [...ownEvents.current, ev];
+              backupEvents(pubkey, [ev]).catch(() => {}); // respaldo local incremental
               setOwnership(subtractSales(
                 mergeOwn(parseOwnership(ownEvents.current), readLocalOwn(pubkey)),
                 soldCounts.current

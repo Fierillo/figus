@@ -42,10 +42,13 @@ export function SettingsModal({
   onClose,
   identity,
   onImportNsec,
+  onOpenRelaySync,
 }: {
   onClose: () => void;
   identity: Identity | null;
   onImportNsec: (raw: string) => void;
+  /** Abre el modal de resiliencia (replicar figus en relays). */
+  onOpenRelaySync?: () => void;
 }) {
   const { t } = useLang();
 
@@ -161,6 +164,33 @@ export function SettingsModal({
             ✕
           </button>
         </div>
+
+        {/* ── RESILIENCIA DE FIGUS ── */}
+        {identity && onOpenRelaySync && (
+          <div>
+            <SectionLabel>RESILIENCIA DE FIGUS</SectionLabel>
+            <p style={{
+              fontSize: 11, color: "var(--muted)", margin: "0 0 10px",
+              lineHeight: 1.6, fontFamily: "var(--condensed)",
+            }}>
+              Tus figus son eventos de Nostr: replicalas en varios relays y guardá
+              una copia local para que nunca se pierdan.
+            </p>
+            <button
+              onClick={onOpenRelaySync}
+              style={{
+                width: "100%",
+                background: "linear-gradient(135deg, var(--gold), #d4920a)",
+                color: "#030b18", border: "none",
+                padding: "11px 0", borderRadius: 10,
+                fontWeight: 900, fontSize: 13, fontFamily: "var(--condensed)",
+                letterSpacing: 0.8, cursor: "pointer",
+              }}
+            >
+              🛰 REPLICAR MIS FIGUS EN LOS RELAYS
+            </button>
+          </div>
+        )}
 
         {/* ── CLAVES NOSTR (solo modo local) ── */}
         {keys && (
