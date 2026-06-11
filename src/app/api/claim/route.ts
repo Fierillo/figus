@@ -190,54 +190,68 @@ async function getInvoice(lnAddress: string, amountSats: number): Promise<string
   return invData.pr;
 }
 
-// Lee el ownership directamente del cache local del issuer (data/ownership.json).
-// El issuer es el único autor de los 30100 — su espejo local es autoritativo y
-// no depende de que los relays externos estén disponibles o sin límite.
-// Fallback a relay query si el archivo no existe (setup inicial sin cache).
 async function fetchOwnedStickers(pubkey: string, issuerPubkey: string, requiredNums: number[]): Promise<Set<number>> {
   const owned = new Set<number>();
 
-  // ── Opción A: cache local (mismo servidor que el issuer) ──────────────────
+  // ── Opción A: Issuer HTTP API (Vercel → VPS) ──────────────────────────────
+  // Si ISSUER_API_URL y ISSUER_API_SECRET están configurados en Vercel, consulta
+  // el issuer directamente. Es la fuente de verdad más confiable.
+  const issuerApiUrl    = process.env.ISSUER_API_URL;
+  const issuerApiSecret = process.env.ISSUER_API_SECRET;
+  if (issuerApiUrl && issuerApiSecret) {
+    try {
+      const res = await fetch(`${issuerApiUrl}/ownership/${pubkey}`, {
+        headers: { Authorization: `Bearer ${issuerApiSecret}` },
+        signal: AbortSignal.timeout(8000),
+      });
+      if (res.ok) {
+        const data = await res.json() as Record<string, number>;
+        for (const num of requiredNums) {
+          if ((data[num] ?? 0) > 0) owned.add(num);
+        }
+        return owned;
+      }
+    } catch { /* issuer API no disponible — caer al siguiente método */ }
+  }
+
+  // ── Opción B: cache local (solo funciona si Next.js corre en el mismo VPS) ─
   try {
     const ownershipPath = path.join(process.cwd(), "data", "ownership.json");
     const raw = JSON.parse(fs.readFileSync(ownershipPath, "utf-8")) as Record<string, number>;
     for (const num of requiredNums) {
       if ((raw[`${pubkey}:${num}`] ?? 0) > 0) owned.add(num);
     }
-    return owned; // archivo existe → es la fuente de verdad
-  } catch {
-    // El archivo no existe todavía (primera vez) — caer a relays
-  }
+    return owned;
+  } catch { /* no estamos en el mismo servidor */ }
 
-  // ── Opción B: fallback — query por relay ──────────────────────────────────
+  // ── Opción C: query por relay (fallback) ──────────────────────────────────
   const albumId = process.env.NEXT_PUBLIC_ALBUM_ID ?? "mundial-2026";
   const dTags = requiredNums.map((n) => `${pubkey}:${albumId}:${n}`);
   const relays = (process.env.NEXT_PUBLIC_RELAYS ?? "wss://relay.damus.io,wss://nos.lol")
     .split(",").map((r) => r.trim()).filter(Boolean);
 
-  for (const relay of relays) {
-    try {
-      const events = await fetchNostrEvents(
-        relay,
-        { kinds: [30100], authors: [issuerPubkey], "#d": dTags },
-        10_000
-      );
-      const latest = new Map<string, { tags: string[][] }>();
-      for (const ev of events as { pubkey: string; tags: string[][]; created_at: number }[]) {
-        if (ev.pubkey !== issuerPubkey) continue;
-        try { if (!verifyEvent(ev as unknown as Event)) continue; } catch { continue; }
-        const d = ev.tags.find((t) => t[0] === "d")?.[1];
-        if (!d) continue;
-        const prev = latest.get(d) as { created_at: number } | undefined;
-        if (!prev || ev.created_at > prev.created_at) latest.set(d, ev);
-      }
-      for (const ev of latest.values()) {
-        const sticker = ev.tags.find((t) => t[0] === "sticker")?.[1];
-        const count   = Number(ev.tags.find((t) => t[0] === "count")?.[1] ?? "0");
-        if (sticker && count > 0) owned.add(Number(sticker.split(":")[1]));
-      }
-      if (owned.size > 0) break;
-    } catch {}
+  const perRelay = await Promise.allSettled(
+    relays.map((relay) =>
+      fetchNostrEvents(relay, { kinds: [30100], authors: [issuerPubkey], "#d": dTags }, 10_000)
+    )
+  );
+
+  const latest = new Map<string, { tags: string[][]; created_at: number }>();
+  for (const result of perRelay) {
+    if (result.status !== "fulfilled") continue;
+    for (const ev of result.value as { pubkey: string; tags: string[][]; created_at: number }[]) {
+      if (ev.pubkey !== issuerPubkey) continue;
+      try { if (!verifyEvent(ev as unknown as Event)) continue; } catch { continue; }
+      const d = ev.tags.find((t) => t[0] === "d")?.[1];
+      if (!d) continue;
+      const prev = latest.get(d);
+      if (!prev || ev.created_at > prev.created_at) latest.set(d, ev);
+    }
+  }
+  for (const ev of latest.values()) {
+    const sticker = ev.tags.find((t) => t[0] === "sticker")?.[1];
+    const count   = Number(ev.tags.find((t) => t[0] === "count")?.[1] ?? "0");
+    if (sticker && count > 0) owned.add(Number(sticker.split(":")[1]));
   }
   return owned;
 }

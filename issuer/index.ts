@@ -1,4 +1,5 @@
 import "dotenv/config";
+import http from "http";
 import { verifyEvent, type Event } from "nostr-tools";
 import {
   RELAYS, ALBUM_ID, pool, publish, issuerPubkey, now, tag,
@@ -15,7 +16,7 @@ import { listenNwcPayments } from "../src/lib/nwc-server";
 import {
   getOrder, putOrder, updateOrder, pendingOrders, pruneOrders,
   wasProcessed, markProcessed, getWatermark, setWatermark,
-  getCachedOwnership, setCachedOwnership, flushSync,
+  getCachedOwnership, setCachedOwnership, getOwnershipForPubkey, flushSync,
   acquireProcessLock, releaseProcessLock,
   type Order, type OrderAction,
 } from "./store";
@@ -630,6 +631,29 @@ async function main() {
   }, 24 * 3600 * 1000);
 
   console.log("   ✅ Issuer listo");
+}
+
+// ── Ownership HTTP API (para Vercel u otro cliente externo) ──────────────────
+// GET /ownership/:pubkey → { num: count, ... } para el pubkey dado.
+// Requiere Authorization: Bearer <ISSUER_API_SECRET>.
+// Solo arranca si ISSUER_HTTP_PORT > 0 e ISSUER_API_SECRET están configurados.
+{
+  const port   = Number(process.env.ISSUER_HTTP_PORT || "0");
+  const secret = process.env.ISSUER_API_SECRET || "";
+  if (port > 0 && secret) {
+    http.createServer((req, res) => {
+      res.setHeader("Content-Type", "application/json");
+      if (req.headers.authorization !== `Bearer ${secret}`) {
+        res.writeHead(401); res.end('{"error":"Unauthorized"}'); return;
+      }
+      const m = (req.url ?? "").match(/^\/ownership\/([a-f0-9]{64})$/);
+      if (!m) {
+        res.writeHead(404); res.end('{"error":"Not found"}'); return;
+      }
+      res.writeHead(200);
+      res.end(JSON.stringify(getOwnershipForPubkey(m[1])));
+    }).listen(port, () => console.log(`🌐 Ownership API en puerto ${port}`));
+  }
 }
 
 // ── Shutdown ordenado ───────────────────────────────────────────────────────

@@ -235,3 +235,17 @@ export function setCachedOwnership(key: string, count: number): void {
   ownership[key] = count;
   scheduleFlush("ownership");
 }
+
+// Devuelve un mapa { stickerNum → count } para un pubkey dado.
+// Usado por el HTTP API del issuer para que Vercel pueda verificar ownership.
+export function getOwnershipForPubkey(pubkey: string): Record<number, number> {
+  const prefix = `${pubkey}:`;
+  const result: Record<number, number> = {};
+  for (const [key, count] of Object.entries(ownership)) {
+    if (key.startsWith(prefix)) {
+      const num = parseInt(key.slice(prefix.length), 10);
+      if (!isNaN(num) && count > 0) result[num] = count;
+    }
+  }
+  return result;
+}
