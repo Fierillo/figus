@@ -275,20 +275,25 @@ async function fetchOwnedStickers(pubkey: string, issuerPubkey: string, required
   // el issuer directamente. Es la fuente de verdad más confiable.
   const issuerApiUrl    = process.env.ISSUER_API_URL;
   const issuerApiSecret = process.env.ISSUER_API_SECRET;
+  console.log("[fetchOwned] issuerApiUrl:", issuerApiUrl ?? "NOT SET");
   if (issuerApiUrl && issuerApiSecret) {
     try {
       const res = await fetch(`${issuerApiUrl}/ownership/${pubkey}`, {
         headers: { Authorization: `Bearer ${issuerApiSecret}` },
         signal: AbortSignal.timeout(8000),
       });
+      console.log("[fetchOwned] API status:", res.status);
       if (res.ok) {
         const data = await res.json() as Record<string, number>;
+        console.log("[fetchOwned] API stickers:", Object.keys(data).length, "owned of", requiredNums.length, "required");
         for (const num of requiredNums) {
           if ((data[num] ?? 0) > 0) owned.add(num);
         }
         return owned;
       }
-    } catch { /* issuer API no disponible — caer al siguiente método */ }
+    } catch (e) {
+      console.error("[fetchOwned] API error:", e);
+    }
   }
 
   // ── Opción B: cache local (solo funciona si Next.js corre en el mismo VPS) ─
