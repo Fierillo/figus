@@ -121,6 +121,7 @@ export function Album({
   const team          = TEAMS[page.id];
   const flag          = TEAM_FLAGS[page.id] ?? "🏆";
   const isFwc         = page.id === "fwc";
+  const isManagers    = page.id === "managers";
   const group         = TEAM_GROUPS[page.id] ?? "";
   const owned         = page.numbers.filter((n) => (ownership[n] || 0) > 0).length;
   const total         = page.numbers.length;
@@ -131,6 +132,8 @@ export function Album({
 
   const headerBg = isFwc
     ? "linear-gradient(160deg,#003087 0%,#001450 50%,#0a0030 100%)"
+    : isManagers
+    ? "linear-gradient(160deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)"
     : `linear-gradient(90deg,${team.color} 0%,${team.accent} 100%)`;
 
   // ── Flip animation style ──────────────────────────────────────────────────
@@ -164,7 +167,7 @@ export function Album({
             <GroupTab
               key={g}
               label={`GRP ${g}`}
-              active={!isFwc && group === g}
+              active={!isFwc && !isManagers && group === g}
               onClick={() => { go(GROUP_FIRST_PAGE[g] ?? 0); setSearchQuery(""); }}
             />
           ))}
@@ -255,12 +258,12 @@ export function Album({
             fontSize: 14, color: "var(--ink)", lineHeight: 1.2,
             display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
           }}>
-            {isFwc ? "🏆 FIFA WORLD CUP 2026™" : (
+            {isFwc ? "🏆 FIFA WORLD CUP 2026™" : isManagers ? "🧑‍💼 TÉCNICOS / DTs" : (
               <><Flag team={page.id} height={16} />{teamName(page.id, lang).toUpperCase()}</>
             )}
           </div>
           <div style={{ fontSize: 10, color: "var(--muted)", fontFamily: "var(--condensed)", marginTop: 1 }}>
-            {!isFwc && `${t.album_group_label} ${group} · `}
+            {!isFwc && !isManagers && `${t.album_group_label} ${group} · `}
             {t.album_page} {idx + 1}/{PAGES.length}
             {!isFwc && ` · ${owned}/${total} ${t.album_stuck}`}
           </div>
@@ -295,95 +298,137 @@ export function Album({
               availableMap={availableMap} onGoToMarket={onGoToMarket}
             />
           ) : (
-            /* ── Páginas de equipo ──────────────────────────────── */
+            /* ── Páginas de equipo / managers ───────────────────── */
             <>
-              {/* Team header */}
-              <div style={{
-                background: headerBg,
-                padding: "14px 16px",
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-              }}>
-                <Flag
-                  team={page.id}
-                  height={44}
-                  style={{ borderRadius: 4, boxShadow: "0 2px 8px rgba(0,0,0,.4)" }}
-                />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    fontFamily: "var(--condensed)", fontWeight: 900,
-                    fontSize: 20, color: "#fff", lineHeight: 1, letterSpacing: 0.5,
-                    display: "flex", alignItems: "center", gap: 8,
-                  }}>
-                    <Flag team={page.id} height={20} style={{ borderRadius: 2 }} />
-                    {teamName(page.id, lang).toUpperCase()}
-                  </div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,.65)", fontFamily: "var(--condensed)", fontWeight: 700, marginTop: 2 }}>
-                    {t.album_group_label} {group}
-                  </div>
-                </div>
-
-                {/* Progress */}
-                <div style={{ flexShrink: 0, textAlign: "right" }}>
-                  <div style={{
-                    fontFamily: "var(--condensed)", fontWeight: 900, fontSize: 13,
-                    color: complete ? "var(--gold)" : "rgba(255,255,255,.85)",
-                  }}>
-                    {owned}/{total}
-                  </div>
-                  <div style={{
-                    width: 50, height: 5, background: "rgba(0,0,0,.3)",
-                    borderRadius: 99, overflow: "hidden", marginTop: 4,
-                  }}>
+              {isManagers ? (
+                /* ── Managers header ──────────────────────────────── */
+                <div style={{
+                  background: headerBg,
+                  padding: "14px 16px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                }}>
+                  <div style={{ fontSize: 36, lineHeight: 1 }}>🧑‍💼</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
-                      height: "100%", width: `${pct}%`,
-                      background: complete ? "var(--gold)" : "#fff",
-                      borderRadius: 99, transition: "width .4s ease",
-                    }}/>
+                      fontFamily: "var(--condensed)", fontWeight: 900,
+                      fontSize: 20, color: "#fff", lineHeight: 1, letterSpacing: 0.5,
+                    }}>
+                      TÉCNICOS / DTs
+                    </div>
+                    <div style={{ fontSize: 11, color: "rgba(255,255,255,.65)", fontFamily: "var(--condensed)", fontWeight: 700, marginTop: 2 }}>
+                      Copa del Mundo 2026
+                    </div>
+                  </div>
+                  <div style={{ flexShrink: 0, textAlign: "right" }}>
+                    <div style={{
+                      fontFamily: "var(--condensed)", fontWeight: 900, fontSize: 13,
+                      color: complete ? "var(--gold)" : "rgba(255,255,255,.85)",
+                    }}>
+                      {owned}/{total}
+                    </div>
+                    <div style={{
+                      width: 50, height: 5, background: "rgba(0,0,0,.3)",
+                      borderRadius: 99, overflow: "hidden", marginTop: 4,
+                    }}>
+                      <div style={{
+                        height: "100%", width: `${pct}%`,
+                        background: complete ? "var(--gold)" : "#fff",
+                        borderRadius: 99, transition: "width .4s ease",
+                      }}/>
+                    </div>
                   </div>
                 </div>
-
-                {complete && (() => {
-                  const claimed = claimedPages.includes(page.id);
-                  const teamLabel = lang === "en"
-                    ? (page.id !== "fwc" ? page.id.toUpperCase() : "World Cup")
-                    : (page.name ?? page.id);
-                  const shareContent = `🏆 ¡Completé el equipo de ${teamLabel} en el álbum del Mundial 2026!\n\nArmá tu álbum en ${SITE_URL} ⚽🎴 #FIFAWorldCup2026 #Figus`;
-                  const claimDisabled = claimed || busy;
-                  return (
-                    <div style={{ display: "flex", gap: 6, alignItems: "center" }} className="pop-in">
-                      <button
-                        onClick={() => !claimDisabled && onClaim(page)}
-                        disabled={claimDisabled}
-                        style={{
-                          background: claimed
-                            ? "rgba(255,255,255,0.15)"
-                            : busy
-                            ? "rgba(255,255,255,0.1)"
-                            : "linear-gradient(135deg,var(--gold),#d4920a)",
-                          color: claimed ? "rgba(255,255,255,0.6)" : busy ? "rgba(255,255,255,0.5)" : "#030b18",
-                          border: (claimed || busy) ? "1px solid rgba(255,255,255,0.2)" : 0,
-                          padding: "8px 14px", borderRadius: 8,
-                          fontWeight: 900, fontSize: 12, fontFamily: "var(--condensed)",
-                          flexShrink: 0, letterSpacing: 0.3,
-                          cursor: claimDisabled ? "default" : "pointer",
-                          opacity: busy && !claimed ? 0.7 : 1,
-                        }}
-                      >
-                        {claimed ? t.album_claimed : busy ? "…" : t.album_prize}
-                      </button>
-                      {identity && (
-                        <ShareButton
-                          content={shareContent}
-                          identity={identity}
-                          style={{ padding: "8px 10px", fontSize: 10 }}
-                        />
-                      )}
+              ) : (
+                /* ── Team header ──────────────────────────────────── */
+                <div style={{
+                  background: headerBg,
+                  padding: "14px 16px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                }}>
+                  <Flag
+                    team={page.id}
+                    height={44}
+                    style={{ borderRadius: 4, boxShadow: "0 2px 8px rgba(0,0,0,.4)" }}
+                  />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontFamily: "var(--condensed)", fontWeight: 900,
+                      fontSize: 20, color: "#fff", lineHeight: 1, letterSpacing: 0.5,
+                      display: "flex", alignItems: "center", gap: 8,
+                    }}>
+                      <Flag team={page.id} height={20} style={{ borderRadius: 2 }} />
+                      {teamName(page.id, lang).toUpperCase()}
                     </div>
-                  );
-                })()}
-              </div>
+                    <div style={{ fontSize: 11, color: "rgba(255,255,255,.65)", fontFamily: "var(--condensed)", fontWeight: 700, marginTop: 2 }}>
+                      {t.album_group_label} {group}
+                    </div>
+                  </div>
+
+                  {/* Progress */}
+                  <div style={{ flexShrink: 0, textAlign: "right" }}>
+                    <div style={{
+                      fontFamily: "var(--condensed)", fontWeight: 900, fontSize: 13,
+                      color: complete ? "var(--gold)" : "rgba(255,255,255,.85)",
+                    }}>
+                      {owned}/{total}
+                    </div>
+                    <div style={{
+                      width: 50, height: 5, background: "rgba(0,0,0,.3)",
+                      borderRadius: 99, overflow: "hidden", marginTop: 4,
+                    }}>
+                      <div style={{
+                        height: "100%", width: `${pct}%`,
+                        background: complete ? "var(--gold)" : "#fff",
+                        borderRadius: 99, transition: "width .4s ease",
+                      }}/>
+                    </div>
+                  </div>
+
+                  {complete && (() => {
+                    const claimed = claimedPages.includes(page.id);
+                    const teamLabel = lang === "en"
+                      ? (page.id !== "fwc" ? page.id.toUpperCase() : "World Cup")
+                      : (page.name ?? page.id);
+                    const shareContent = `🏆 ¡Completé el equipo de ${teamLabel} en el álbum del Mundial 2026!\n\nArmá tu álbum en ${SITE_URL} ⚽🎴 #FIFAWorldCup2026 #Figus`;
+                    const claimDisabled = claimed || busy;
+                    return (
+                      <div style={{ display: "flex", gap: 6, alignItems: "center" }} className="pop-in">
+                        <button
+                          onClick={() => !claimDisabled && onClaim(page)}
+                          disabled={claimDisabled}
+                          style={{
+                            background: claimed
+                              ? "rgba(255,255,255,0.15)"
+                              : busy
+                              ? "rgba(255,255,255,0.1)"
+                              : "linear-gradient(135deg,var(--gold),#d4920a)",
+                            color: claimed ? "rgba(255,255,255,0.6)" : busy ? "rgba(255,255,255,0.5)" : "#030b18",
+                            border: (claimed || busy) ? "1px solid rgba(255,255,255,0.2)" : 0,
+                            padding: "8px 14px", borderRadius: 8,
+                            fontWeight: 900, fontSize: 12, fontFamily: "var(--condensed)",
+                            flexShrink: 0, letterSpacing: 0.3,
+                            cursor: claimDisabled ? "default" : "pointer",
+                            opacity: busy && !claimed ? 0.7 : 1,
+                          }}
+                        >
+                          {claimed ? t.album_claimed : busy ? "…" : t.album_prize}
+                        </button>
+                        {identity && (
+                          <ShareButton
+                            content={shareContent}
+                            identity={identity}
+                            style={{ padding: "8px 10px", fontSize: 10 }}
+                          />
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
 
               {/* Sticker grid */}
               <div style={{ padding: 10 }}>
