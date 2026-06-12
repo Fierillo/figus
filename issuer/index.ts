@@ -16,8 +16,9 @@ import { listenNwcPayments } from "../src/lib/nwc-server";
 import {
   getOrder, putOrder, updateOrder, pendingOrders, pruneOrders,
   wasProcessed, markProcessed, getWatermark, setWatermark,
-  getCachedOwnership, setCachedOwnership, getOwnershipForPubkey, flushSync,
-  acquireProcessLock, releaseProcessLock,
+  getCachedOwnership, setCachedOwnership, getOwnershipForPubkey,
+  hasClaimRecord, reserveClaimRecord, confirmClaimRecord, releaseClaimRecord,
+  flushSync, acquireProcessLock, releaseProcessLock,
   type Order, type OrderAction,
 } from "./store";
 
@@ -633,26 +634,78 @@ async function main() {
   console.log("   ✅ Issuer listo");
 }
 
-// ── Ownership HTTP API (para Vercel u otro cliente externo) ──────────────────
-// GET /ownership/:pubkey → { num: count, ... } para el pubkey dado.
+// ── HTTP API (para Vercel u otro cliente externo) ─────────────────────────────
 // Requiere Authorization: Bearer <ISSUER_API_SECRET>.
 // Solo arranca si ISSUER_HTTP_PORT > 0 e ISSUER_API_SECRET están configurados.
+//
+// Rutas:
+//   GET  /ownership/:pubkey            → { num: count, ... }
+//   GET  /claims/:pubkey/:pageId       → { claimed: bool }
+//   POST /claims/:pubkey/:pageId       → reserva atómica (200 ok / 409 conflict)
+//   PATCH /claims/:pubkey/:pageId      → { action: "confirm" | "release" }
+
+function readBody(req: http.IncomingMessage): Promise<string> {
+  return new Promise((resolve, reject) => {
+    let data = "";
+    req.on("data", (chunk) => (data += chunk));
+    req.on("end", () => resolve(data));
+    req.on("error", reject);
+  });
+}
+
 {
   const port   = Number(process.env.ISSUER_HTTP_PORT || "0");
   const secret = process.env.ISSUER_API_SECRET || "";
   if (port > 0 && secret) {
-    http.createServer((req, res) => {
+    http.createServer(async (req, res) => {
       res.setHeader("Content-Type", "application/json");
       if (req.headers.authorization !== `Bearer ${secret}`) {
         res.writeHead(401); res.end('{"error":"Unauthorized"}'); return;
       }
-      const m = (req.url ?? "").match(/^\/ownership\/([a-f0-9]{64})$/);
-      if (!m) {
-        res.writeHead(404); res.end('{"error":"Not found"}'); return;
+
+      const url    = req.url ?? "";
+      const method = req.method ?? "GET";
+
+      // GET /ownership/:pubkey
+      const mOwn = url.match(/^\/ownership\/([a-f0-9]{64})$/);
+      if (mOwn && method === "GET") {
+        res.writeHead(200);
+        res.end(JSON.stringify(getOwnershipForPubkey(mOwn[1])));
+        return;
       }
-      res.writeHead(200);
-      res.end(JSON.stringify(getOwnershipForPubkey(m[1])));
-    }).listen(port, () => console.log(`🌐 Ownership API en puerto ${port}`));
+
+      // /claims/:pubkey/:pageId
+      const mClaim = url.match(/^\/claims\/([a-f0-9]{64})\/([^/]+)$/);
+      if (mClaim) {
+        const [, pubkey, pageId] = mClaim;
+
+        if (method === "GET") {
+          res.writeHead(200);
+          res.end(JSON.stringify({ claimed: hasClaimRecord(pubkey, pageId) }));
+          return;
+        }
+
+        if (method === "POST") {
+          let body: { amountSats?: number } = {};
+          try { const raw = await readBody(req); if (raw) body = JSON.parse(raw); } catch {}
+          const ok = reserveClaimRecord(pubkey, pageId, body.amountSats ?? 0);
+          res.writeHead(ok ? 200 : 409);
+          res.end(JSON.stringify(ok ? { ok: true } : { error: "Already claimed" }));
+          return;
+        }
+
+        if (method === "PATCH") {
+          let body: { action?: string } = {};
+          try { const raw = await readBody(req); if (raw) body = JSON.parse(raw); } catch {}
+          if (body.action === "confirm") confirmClaimRecord(pubkey, pageId);
+          else if (body.action === "release") releaseClaimRecord(pubkey, pageId);
+          res.writeHead(200); res.end('{"ok":true}');
+          return;
+        }
+      }
+
+      res.writeHead(404); res.end('{"error":"Not found"}');
+    }).listen(port, () => console.log(`🌐 Issuer API en puerto ${port}`));
   }
 }
 

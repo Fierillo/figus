@@ -10,6 +10,74 @@ import { PAGES, ALL_NUMBERS } from "@/lib/catalog";
 const REWARD_PAGE_SATS  = Number(process.env.REWARD_PAGE_SATS  || "210");
 const REWARD_ALBUM_SATS = Number(process.env.REWARD_ALBUM_SATS || "5000");
 
+// ── Wrappers de claim ledger ──────────────────────────────────────────────────
+// Si ISSUER_API_URL está configurado, el issuer VPS es la fuente de verdad
+// (su disco es duradero; /tmp de Vercel se borra en cada redeploy).
+// Si la API no está disponible, cae al ledger local como fallback.
+
+const ISSUER_API_URL    = process.env.ISSUER_API_URL;
+const ISSUER_API_SECRET = process.env.ISSUER_API_SECRET;
+const CLAIM_TIMEOUT_MS  = 8000;
+
+async function checkClaimed(pubkey: string, pageId: string): Promise<boolean> {
+  if (ISSUER_API_URL && ISSUER_API_SECRET) {
+    try {
+      const r = await fetch(`${ISSUER_API_URL}/claims/${pubkey}/${encodeURIComponent(pageId)}`, {
+        headers: { Authorization: `Bearer ${ISSUER_API_SECRET}` },
+        signal: AbortSignal.timeout(CLAIM_TIMEOUT_MS),
+      });
+      if (r.ok) return (await r.json() as { claimed: boolean }).claimed;
+    } catch { /* API no disponible — caer al local */ }
+  }
+  return hasClaimed(pubkey, pageId);
+}
+
+/** Devuelve true si reservó, false si ya estaba reclamado, "error" si la API falló. */
+async function tryReserve(pubkey: string, pageId: string, amountSats: number): Promise<true | false | "error"> {
+  if (ISSUER_API_URL && ISSUER_API_SECRET) {
+    try {
+      const r = await fetch(`${ISSUER_API_URL}/claims/${pubkey}/${encodeURIComponent(pageId)}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${ISSUER_API_SECRET}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ amountSats }),
+        signal: AbortSignal.timeout(CLAIM_TIMEOUT_MS),
+      });
+      if (r.status === 409) return false;
+      if (r.ok) return true;
+      return "error";
+    } catch { return "error"; }
+  }
+  return reserveClaim(pubkey, pageId, amountSats);
+}
+
+async function doConfirm(pubkey: string, pageId: string): Promise<void> {
+  if (ISSUER_API_URL && ISSUER_API_SECRET) {
+    try {
+      await fetch(`${ISSUER_API_URL}/claims/${pubkey}/${encodeURIComponent(pageId)}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${ISSUER_API_SECRET}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "confirm" }),
+        signal: AbortSignal.timeout(CLAIM_TIMEOUT_MS),
+      });
+    } catch { /* best effort */ }
+  }
+  confirmClaim(pubkey, pageId);
+}
+
+async function doRelease(pubkey: string, pageId: string): Promise<void> {
+  if (ISSUER_API_URL && ISSUER_API_SECRET) {
+    try {
+      await fetch(`${ISSUER_API_URL}/claims/${pubkey}/${encodeURIComponent(pageId)}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${ISSUER_API_SECRET}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "release" }),
+        signal: AbortSignal.timeout(CLAIM_TIMEOUT_MS),
+      });
+    } catch { /* best effort */ }
+  }
+  releaseClaim(pubkey, pageId);
+}
+
 export async function POST(req: NextRequest) {
   try {
     return await handleClaim(req);
@@ -63,7 +131,7 @@ async function handleClaim(req: NextRequest) {
   }
 
   // ── Anti-double-claim ───────────────────────────────────────────────────────
-  if (hasClaimed(pubkey, pageId)) {
+  if (await checkClaimed(pubkey, pageId)) {
     return err("Ya reclamaste este premio anteriormente", 409);
   }
 
@@ -101,13 +169,13 @@ async function handleClaim(req: NextRequest) {
   // ── Reserva atómica ANTES de pagar (anti doble-claim concurrente) ────────────
   // Cierra la ventana entre el chequeo y el pago: dos requests simultáneos para
   // la misma página no pueden reservar los dos, así que solo uno paga.
-  if (!reserveClaim(pubkey, pageId, amountSats)) {
-    return err("Ya reclamaste este premio anteriormente", 409);
-  }
+  const reserved = await tryReserve(pubkey, pageId, amountSats);
+  if (reserved === "error") return err("No se pudo registrar el reclamo, intentá de nuevo", 503);
+  if (!reserved) return err("Ya reclamaste este premio anteriormente", 409);
 
   // ── Modo mock: confirma sin pago real ────────────────────────────────────────
   if (mock) {
-    confirmClaim(pubkey, pageId);
+    await doConfirm(pubkey, pageId);
     return NextResponse.json({
       ok: true,
       message: `🧪 [mock] Premio de ${amountSats} sats registrado para ${lud16} (sin pago real)`,
@@ -119,7 +187,7 @@ async function handleClaim(req: NextRequest) {
   try {
     invoice = await getInvoice(lud16, amountSats);
   } catch (e: any) {
-    releaseClaim(pubkey, pageId); // el pago no salió — liberar para reintentar
+    await doRelease(pubkey, pageId);
     return err(`No se pudo generar la factura Lightning: ${e.message}`, 502);
   }
 
@@ -127,12 +195,12 @@ async function handleClaim(req: NextRequest) {
   try {
     await nwcPayServer(invoice, nwcStr!);
   } catch (e: any) {
-    releaseClaim(pubkey, pageId);
+    await doRelease(pubkey, pageId);
     return err(`Error al enviar el pago: ${e.message}`, 502);
   }
 
   // ── Confirmar el reclamo (pago exitoso) ──────────────────────────────────────
-  confirmClaim(pubkey, pageId);
+  await doConfirm(pubkey, pageId);
 
   return NextResponse.json({
     ok: true,

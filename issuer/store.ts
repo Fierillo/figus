@@ -236,6 +236,56 @@ export function setCachedOwnership(key: string, count: number): void {
   scheduleFlush("ownership");
 }
 
+// ── Ledger de reclamos de premios ─────────────────────────────────────────────
+// Fuente de verdad durable para Vercel: /tmp es efímero y se borra en cada
+// redeploy, así que el issuer (con disco real) guarda el registro definitivo.
+
+const CLAIMS_PATH = path.join(DIR, "claims.json");
+type ClaimEntry = { ts: number; amountSats: number; status: "pending" | "confirmed" };
+type Claims = Record<string, ClaimEntry>;
+
+const claims: Claims = readJson(CLAIMS_PATH, {});
+
+function writeClaims(): void {
+  writeJsonAtomic(CLAIMS_PATH, claims);
+}
+
+function claimKey(pubkey: string, pageId: string): string {
+  return `${pubkey}:${pageId}`;
+}
+
+export function hasClaimRecord(pubkey: string, pageId: string): boolean {
+  return Boolean(claims[claimKey(pubkey, pageId)]);
+}
+
+/**
+ * Reserva atómica (read+write síncronos, sin await en el medio).
+ * Dos requests concurrentes no pueden reservar los dos — el segundo recibe false.
+ * Devuelve true si reservó con éxito, false si ya existía (pending o confirmed).
+ */
+export function reserveClaimRecord(pubkey: string, pageId: string, amountSats: number): boolean {
+  const k = claimKey(pubkey, pageId);
+  if (claims[k]) return false;
+  claims[k] = { ts: Date.now(), amountSats, status: "pending" };
+  writeClaims();
+  return true;
+}
+
+export function confirmClaimRecord(pubkey: string, pageId: string): void {
+  const k = claimKey(pubkey, pageId);
+  if (!claims[k]) return;
+  claims[k] = { ...claims[k], status: "confirmed", ts: Date.now() };
+  writeClaims();
+}
+
+export function releaseClaimRecord(pubkey: string, pageId: string): void {
+  const k = claimKey(pubkey, pageId);
+  if (claims[k]?.status === "pending") {
+    delete claims[k];
+    writeClaims();
+  }
+}
+
 // Devuelve un mapa { stickerNum → count } para un pubkey dado.
 // Usado por el HTTP API del issuer para que Vercel pueda verificar ownership.
 export function getOwnershipForPubkey(pubkey: string): Record<number, number> {
