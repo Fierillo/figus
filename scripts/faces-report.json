@@ -98,6 +98,15 @@
     "nationalityMatch": true,
     "note": "Algerian footballer (born 2000)"
   },
+  "alg:21": {
+    "name": "Vladimir Petković",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/mksteq1780306853.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Switzerland"
+  },
   "alg:3": {
     "name": "Ramy Bensebaini",
     "status": "ok",
@@ -248,6 +257,14 @@
     "status": "ok",
     "source": "thesportsdb",
     "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/c24ms91780010953.jpg",
+    "candidates": 1,
+    "nationalityMatch": true
+  },
+  "arg:21": {
+    "name": "Lionel Scaloni",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/d3jsh91641891885.jpg",
     "candidates": 1,
     "nationalityMatch": true
   },
@@ -405,6 +422,15 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "aus:21": {
+    "name": "Tony Popovic",
+    "status": "ok",
+    "source": "wikipedia",
+    "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Tony_Popovic_Managing_Western_Sydney_Wanderers_Training.png/960px-Tony_Popovic_Managing_Western_Sydney_Wanderers_Training.png",
+    "candidates": 4,
+    "nationalityMatch": true,
+    "note": "Australian soccer manager (born 1973)"
+  },
   "aus:3": {
     "name": "Joe Gauci",
     "status": "ok",
@@ -561,6 +587,15 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "aut:21": {
+    "name": "Ralf Rangnick",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/nxh8tm1641305468.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Germany"
+  },
   "aut:3": {
     "name": "Patrick Pentz",
     "status": "ok",
@@ -715,6 +750,15 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "bel:21": {
+    "name": "Rudi Garcia",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/4x4c8e1549744881.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: France"
+  },
   "bel:3": {
     "name": "Arthur Theate",
     "status": "ok",
@@ -865,6 +909,14 @@
     "status": "ok",
     "source": "thesportsdb",
     "sourceUrl": null,
+    "candidates": 1,
+    "nationalityMatch": true
+  },
+  "bih:21": {
+    "name": "Sergej Barbarez",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/u6g0nu1778539592.jpg",
     "candidates": 1,
     "nationalityMatch": true
   },
@@ -1023,6 +1075,15 @@
     "sourceUrl": null,
     "candidates": 1,
     "nationalityMatch": true
+  },
+  "bra:21": {
+    "name": "Carlo Ancelotti",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/jbdjl01576946407.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Italy"
   },
   "bra:3": {
     "name": "Bento",
@@ -1184,6 +1245,15 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "can:21": {
+    "name": "Jesse Marsch",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/aezkxu1603548457.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: United States"
+  },
   "can:3": {
     "name": "Alphonso Davies",
     "status": "ok",
@@ -1336,6 +1406,15 @@
     "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/ws5egt1735338560.jpg",
     "candidates": 1,
     "nationalityMatch": true
+  },
+  "civ:21": {
+    "name": "Emerse Faé",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/8pt3vy1780307578.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: France"
   },
   "civ:3": {
     "name": "Ghislain Konan",
@@ -1492,6 +1571,15 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "cod:21": {
+    "name": "Sébastien Desabre",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/544itk1780306955.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: France"
+  },
   "cod:3": {
     "name": "Aaron Wan-Bissaka",
     "status": "ok",
@@ -1646,6 +1734,15 @@
     "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/qkw97r1779753703.jpg",
     "candidates": 1,
     "nationalityMatch": true
+  },
+  "col:21": {
+    "name": "Néstor Lorenzo",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/gufmmj1758580605.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Argentina"
   },
   "col:3": {
     "name": "David Ospina",
@@ -1802,6 +1899,14 @@
     "status": "ok",
     "source": "thesportsdb",
     "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/2wyjhw1629107398.jpg",
+    "candidates": 1,
+    "nationalityMatch": true
+  },
+  "cpv:21": {
+    "name": "Bubista",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/es80on1779145143.jpg",
     "candidates": 1,
     "nationalityMatch": true
   },
@@ -1962,6 +2067,14 @@
     "nationalityMatch": false,
     "note": "nacionalidad API: Austria"
   },
+  "cro:21": {
+    "name": "Zlatko Dalić",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/a5qb5h1668792392.jpg",
+    "candidates": 1,
+    "nationalityMatch": true
+  },
   "cro:3": {
     "name": "Duje Caleta-Car",
     "status": "ok",
@@ -2115,6 +2228,15 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "cuw:21": {
+    "name": "Dick Advocaat",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/xhl1rd1586168025.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: The Netherlands"
+  },
   "cuw:3": {
     "name": "Armando Obispo",
     "status": "ok",
@@ -2265,6 +2387,14 @@
     "status": "ok",
     "source": "thesportsdb",
     "sourceUrl": null,
+    "candidates": 1,
+    "nationalityMatch": true
+  },
+  "cze:21": {
+    "name": "Miroslav Koubek",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/egex4v1777372159.jpg",
     "candidates": 1,
     "nationalityMatch": true
   },
@@ -2425,6 +2555,15 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "ecu:21": {
+    "name": "Sebastián Beccacece",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/olbhct1743391593.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Argentina"
+  },
   "ecu:3": {
     "name": "Gonzalo Valle",
     "status": "ok",
@@ -2578,6 +2717,14 @@
     "status": "ok",
     "source": "thesportsdb",
     "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/w1jx521658324336.jpg",
+    "candidates": 1,
+    "nationalityMatch": true
+  },
+  "egy:21": {
+    "name": "Hossam Hassan",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/6kuirr1716814493.jpg",
     "candidates": 1,
     "nationalityMatch": true
   },
@@ -2740,6 +2887,15 @@
     "nationalityMatch": true,
     "note": "English footballer (born 1995)"
   },
+  "eng:21": {
+    "name": "Thomas Tuchel",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/sxst2f1662550484.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Germany"
+  },
   "eng:3": {
     "name": "John Stones",
     "status": "ok",
@@ -2895,6 +3051,14 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "esp:21": {
+    "name": "Luis de la Fuente",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/hp6wfl1628779634.jpg",
+    "candidates": 1,
+    "nationalityMatch": true
+  },
   "esp:3": {
     "name": "Robin Le Normand",
     "status": "ok",
@@ -3045,6 +3209,14 @@
     "status": "ok",
     "source": "thesportsdb",
     "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/v08cj31778816426.jpg",
+    "candidates": 1,
+    "nationalityMatch": true
+  },
+  "fra:21": {
+    "name": "Didier Deschamps",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/464fdi1620132742.jpg",
     "candidates": 1,
     "nationalityMatch": true
   },
@@ -3205,6 +3377,14 @@
     "nationalityMatch": true,
     "note": "German footballer (born 2002)"
   },
+  "ger:21": {
+    "name": "Julian Nagelsmann",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/x9iybb1628244756.jpg",
+    "candidates": 1,
+    "nationalityMatch": true
+  },
   "ger:3": {
     "name": "Jonathan Tah",
     "status": "ok",
@@ -3360,6 +3540,15 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "gha:21": {
+    "name": "Carlos Queiroz",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/za7u3c1780307820.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Portugal"
+  },
   "gha:3": {
     "name": "Tariq Lamptey",
     "status": "ok",
@@ -3512,6 +3701,15 @@
     "sourceUrl": null,
     "candidates": 1,
     "nationalityMatch": true
+  },
+  "hai:21": {
+    "name": "Sébastien Migné",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/egtw5o1780307650.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: France"
   },
   "hai:3": {
     "name": "Carlens Arcus",
@@ -3670,6 +3868,14 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "irn:21": {
+    "name": "Amir Ghalenoei",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/8uqjto1780307486.jpg",
+    "candidates": 1,
+    "nationalityMatch": true
+  },
   "irn:3": {
     "name": "Morteza Pouraliganji",
     "status": "ok",
@@ -3822,6 +4028,15 @@
     "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/ptoxm31780440519.jpg",
     "candidates": 1,
     "nationalityMatch": true
+  },
+  "irq:21": {
+    "name": "Graham Arnold",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/uqub651658778222.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Australia"
   },
   "irq:3": {
     "name": "Rebin Sulaka",
@@ -3979,6 +4194,15 @@
     "candidates": 3,
     "nationalityMatch": true,
     "note": "Jordanian footballer (born 2006)"
+  },
+  "jor:21": {
+    "name": "Jamal Sellami",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/74jl8d1780307312.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Morocco"
   },
   "jor:3": {
     "name": "Ihsan Haddad",
@@ -4138,6 +4362,14 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "jpn:21": {
+    "name": "Hajime Moriyasu",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/b6v8381668791841.jpg",
+    "candidates": 1,
+    "nationalityMatch": true
+  },
   "jpn:3": {
     "name": "Henry Heroki Mochizuki",
     "status": "missing",
@@ -4289,6 +4521,14 @@
     "status": "ok",
     "source": "thesportsdb",
     "sourceUrl": null,
+    "candidates": 1,
+    "nationalityMatch": true
+  },
+  "kor:21": {
+    "name": "Hong Myung-bo",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/up6h1w1765217882.jpg",
     "candidates": 1,
     "nationalityMatch": true
   },
@@ -4450,6 +4690,15 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "ksa:21": {
+    "name": "Georgios Donis",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/em5ysk1780308090.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Greece"
+  },
   "ksa:3": {
     "name": "Abdulrahman Al-Sanbi",
     "status": "missing",
@@ -4600,6 +4849,14 @@
     "status": "ok",
     "source": "thesportsdb",
     "sourceUrl": null,
+    "candidates": 1,
+    "nationalityMatch": true
+  },
+  "mar:21": {
+    "name": "Mohamed Ouahbi",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/i0yejc1779837580.jpg",
     "candidates": 1,
     "nationalityMatch": true
   },
@@ -4757,6 +5014,14 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "mex:21": {
+    "name": "Javier Aguirre",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/newfth1678830171.jpg",
+    "candidates": 1,
+    "nationalityMatch": true
+  },
   "mex:3": {
     "name": "Johan Vásquez",
     "status": "ok",
@@ -4908,6 +5173,14 @@
     "status": "ok",
     "source": "thesportsdb",
     "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/m9g2ki1669145821.jpg",
+    "candidates": 1,
+    "nationalityMatch": true
+  },
+  "ned:21": {
+    "name": "Ronald Koeman",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/cmwxwz1600893612.jpg",
     "candidates": 1,
     "nationalityMatch": true
   },
@@ -5065,6 +5338,14 @@
     "nationalityMatch": true,
     "note": "Norwegian footballer (born 2003)"
   },
+  "nor:21": {
+    "name": "Ståle Solbakken",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/c18gg61654263845.jpg",
+    "candidates": 1,
+    "nationalityMatch": true
+  },
   "nor:3": {
     "name": "Julian Ryerson",
     "status": "ok",
@@ -5218,6 +5499,15 @@
     "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/kuflmc1778729940.jpg",
     "candidates": 1,
     "nationalityMatch": true
+  },
+  "nzl:21": {
+    "name": "Darren Bazeley",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/a8ir4j1778736649.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: England"
   },
   "nzl:3": {
     "name": "Alex Paulsen",
@@ -5378,6 +5668,15 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "pan:21": {
+    "name": "Thomas Christiansen",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/b1yffq1611001577.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Spain"
+  },
   "pan:3": {
     "name": "Luis Mejia",
     "status": "ok",
@@ -5532,6 +5831,15 @@
     "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/gtfkf11503229618.jpg",
     "candidates": 1,
     "nationalityMatch": true
+  },
+  "par:21": {
+    "name": "Gustavo Alfaro",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/kt07ch1668777359.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Argentina"
   },
   "par:3": {
     "name": "Orlando Gill",
@@ -5688,6 +5996,15 @@
     "candidates": 3,
     "nationalityMatch": true,
     "note": "Portuguese footballer (born 1999)"
+  },
+  "por:21": {
+    "name": "Roberto Martínez",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/7en2pp1595276594.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Spain"
   },
   "por:3": {
     "name": "Jose Sá",
@@ -5846,6 +6163,15 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "qat:21": {
+    "name": "Julen Lopetegui",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/vi8ck51559749912.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Spain"
+  },
   "qat:3": {
     "name": "Sultan Albrake",
     "status": "ok",
@@ -6000,6 +6326,15 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "rsa:21": {
+    "name": "Hugo Broos",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/aubsyt1780307174.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Belgium"
+  },
   "rsa:3": {
     "name": "Sipho Chaine",
     "status": "ok",
@@ -6150,6 +6485,14 @@
     "status": "ok",
     "source": "thesportsdb",
     "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/5vkrus1771751268.jpg",
+    "candidates": 1,
+    "nationalityMatch": true
+  },
+  "sco:21": {
+    "name": "Steve Clarke",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/kainkm1549399439.jpg",
     "candidates": 1,
     "nationalityMatch": true
   },
@@ -6306,6 +6649,14 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "sen:21": {
+    "name": "Pape Thiaw",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/p438j01780308245.jpg",
+    "candidates": 1,
+    "nationalityMatch": true
+  },
   "sen:3": {
     "name": "Yehvann Diouf",
     "status": "ok",
@@ -6456,6 +6807,14 @@
     "status": "ok",
     "source": "thesportsdb",
     "sourceUrl": null,
+    "candidates": 1,
+    "nationalityMatch": true
+  },
+  "sui:21": {
+    "name": "Murat Yakin",
+    "status": "ok",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/6tdccv1668797947.jpg",
     "candidates": 1,
     "nationalityMatch": true
   },
@@ -6611,6 +6970,15 @@
     "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/83hsmp1778608876.jpg",
     "candidates": 1,
     "nationalityMatch": true
+  },
+  "swe:21": {
+    "name": "Graham Potter",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/kn1gia1549572899.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: England"
   },
   "swe:3": {
     "name": "Isak Hien",
@@ -6771,6 +7139,15 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "tun:21": {
+    "name": "Sabri Lamouchi",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/jwceyo1562602058.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: France"
+  },
   "tun:3": {
     "name": "Aymen Dahmen",
     "status": "ok",
@@ -6924,6 +7301,15 @@
     "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/xnp5uz1698226958.jpg",
     "candidates": 1,
     "nationalityMatch": true
+  },
+  "tur:21": {
+    "name": "Vincenzo Montella",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/d1sjsy1661854263.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Italy"
   },
   "tur:3": {
     "name": "Mert Müldür",
@@ -7081,6 +7467,15 @@
     "candidates": 1,
     "nationalityMatch": true
   },
+  "uru:21": {
+    "name": "Marcelo Bielsa",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/r5f1301549543465.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Argentina"
+  },
   "uru:3": {
     "name": "Santiago Mele",
     "status": "ok",
@@ -7234,6 +7629,15 @@
     "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/wk1dt01719528941.jpg",
     "candidates": 1,
     "nationalityMatch": true
+  },
+  "usa:21": {
+    "name": "Mauricio Pochettino",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://r2.thesportsdb.com/images/media/player/thumb/ruel3u1549370038.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Argentina"
   },
   "usa:3": {
     "name": "Chris Richards",
@@ -7391,6 +7795,15 @@
     "candidates": 3,
     "nationalityMatch": true,
     "note": "Uzbek footballer (born 2003)"
+  },
+  "uzb:21": {
+    "name": "Fabio Cannavaro",
+    "status": "low_confidence",
+    "source": "thesportsdb",
+    "sourceUrl": "https://www.thesportsdb.com/images/media/player/thumb/x98gdq1778546018.jpg",
+    "candidates": 1,
+    "nationalityMatch": false,
+    "note": "nacionalidad API: Italy"
   },
   "uzb:3": {
     "name": "Farrukh Savfiev",
