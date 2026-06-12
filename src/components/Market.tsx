@@ -238,43 +238,23 @@ export function Market({
                 <span style={{ fontSize: 9, color: "var(--muted)", fontFamily: "var(--condensed)", fontWeight: 700, letterSpacing: 1, marginRight: 2 }}>
                   {t.market_filter_team.toUpperCase()}
                 </span>
-                <button
-                  onClick={() => setTeamFilter(null)}
+                <select
+                  value={teamFilter ?? ""}
+                  onChange={(e) => setTeamFilter(e.target.value || null)}
                   style={{
                     padding: "5px 10px", borderRadius: 99, fontSize: 10,
                     fontFamily: "var(--condensed)", fontWeight: 900, letterSpacing: 0.3,
-                    cursor: "pointer", border: "1px solid",
-                    borderColor: teamFilter === null ? "var(--gold)" : "var(--line)",
-                    background: teamFilter === null ? "rgba(232,185,35,0.15)" : "transparent",
-                    color: teamFilter === null ? "var(--gold)" : "var(--muted)",
+                    cursor: "pointer", border: "1px solid var(--line)",
+                    background: "var(--panel2)", color: teamFilter ? "var(--gold)" : "var(--muted)",
+                    outline: "none",
                   }}
                 >
-                  {t.market_filter_all_teams}
-                </button>
-              </div>
-
-              {/* Team pills (scrollable) */}
-              <div style={{ display: "flex", gap: 4, marginBottom: 10, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "thin" }}>
-                {teams.map((tm) => {
-                  const active = teamFilter === tm.id;
-                  const flag = TEAM_FLAGS[tm.id] ?? "";
-                  return (
-                    <button
-                      key={tm.id}
-                      onClick={() => setTeamFilter(active ? null : tm.id)}
-                      style={{
-                        padding: "4px 8px", borderRadius: 99, fontSize: 10, whiteSpace: "nowrap",
-                        fontFamily: "var(--condensed)", fontWeight: 900, letterSpacing: 0.3,
-                        cursor: "pointer", border: "1px solid", flexShrink: 0,
-                        borderColor: active ? "var(--gold)" : "var(--line)",
-                        background: active ? "rgba(232,185,35,0.15)" : "transparent",
-                        color: active ? "var(--gold)" : "var(--muted)",
-                      }}
-                    >
-                      {flag} {tm.name}
-                    </button>
-                  );
-                })}
+                  <option value="">{t.market_filter_all_teams}</option>
+                  {teams.map((tm) => {
+                    const flag = TEAM_FLAGS[tm.id] ?? "";
+                    return <option key={tm.id} value={tm.id}>{flag} {tm.name}</option>;
+                  })}
+                </select>
               </div>
             </>
           )}
