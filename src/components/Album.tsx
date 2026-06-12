@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   CATALOG, PAGES, RARITY_META, TEAMS, TEAM_FLAGS, TEAM_GROUPS, ALL_NUMBERS, suggestedPrice, teamName,
 } from "@/lib/catalog";
@@ -33,6 +33,8 @@ export function Album({
   onSell,
   claimedPages = [],
   myListings = [],
+  otherListings = [],
+  onGoToMarket,
   identity,
   focusSticker = null,
   busy = false,
@@ -43,12 +45,24 @@ export function Album({
   onSell: (num: number, price: number) => void;
   claimedPages?: string[];
   myListings?: Listing[];
+  otherListings?: Listing[];
+  onGoToMarket?: (n: number) => void;
   identity?: Identity;
   /** Pedido externo de saltar a la página que contiene esta figurita (token fuerza re-trigger). */
   focusSticker?: { num: number; token: number } | null;
   busy?: boolean;
 }) {
   const listedNums = new Set(myListings.map(l => l.stickerNum));
+
+  // Mapa de figuritas disponibles en mercadito: num → precio mínimo
+  const availableMap = useMemo(() => {
+    const map = new Map<number, number>();
+    for (const l of otherListings) {
+      const cur = map.get(l.stickerNum);
+      if (cur === undefined || l.price < cur) map.set(l.stickerNum, l.price);
+    }
+    return map;
+  }, [otherListings]);
   const [idx,         setIdx]         = useState(0);
   const [flipPhase,   setFlipPhase]   = useState<FlipPhase>("idle");
   const [flipDir,     setFlipDir]     = useState<FlipDir>("next");
@@ -278,6 +292,7 @@ export function Album({
               albumComplete={albumComplete} albumClaimed={albumClaimed} onClaimAlbum={onClaimAlbum}
               fwcComplete={complete} fwcClaimed={claimedPages.includes("fwc")} onClaimFwc={() => onClaim(page)}
               identity={identity} busy={busy}
+              availableMap={availableMap} onGoToMarket={onGoToMarket}
             />
           ) : (
             /* ── Páginas de equipo ──────────────────────────────── */
@@ -378,29 +393,36 @@ export function Album({
                   gap: 7,
                 }}>
                   {page.numbers.map((n) => {
-                    const count = ownership[n] || 0;
-                    const has   = count > 0;
-                    const dupe  = count > 1;
-                    const r     = RARITY_META[CATALOG[n].rarity];
+                    const count    = ownership[n] || 0;
+                    const has      = count > 0;
+                    const dupe     = count > 1;
+                    const r        = RARITY_META[CATALOG[n].rarity];
+                    const minPrice = !has ? (availableMap.get(n) ?? null) : null;
+                    const forSale  = minPrice !== null;
 
                     return (
                       <div
                         key={n}
                         data-figu-slot={n}
                         className={has ? "pop-in" : ""}
-                        onClick={() => has && setZoomedNum(n)}
+                        onClick={() => {
+                          if (has) setZoomedNum(n);
+                          else if (forSale && onGoToMarket) onGoToMarket(n);
+                        }}
                         style={{
                           aspectRatio: "3/4",
                           borderRadius: 6,
                           border: has
                             ? `2px solid ${r.ring}`
-                            : "1.5px dashed #bbb",
+                            : forSale
+                              ? "1.5px dashed #22c55e"
+                              : "1.5px dashed #bbb",
                           boxShadow: has ? `0 3px 14px ${r.glow}` : "none",
                           position: "relative",
                           overflow: "hidden",
                           background: has ? "transparent" : "rgba(0,0,0,.04)",
                           transition: "box-shadow .25s",
-                          cursor: has ? "pointer" : "default",
+                          cursor: has || forSale ? "pointer" : "default",
                         }}
                       >
                         {has ? (
@@ -439,10 +461,21 @@ export function Album({
                             width: "100%", height: "100%",
                             display: "flex", flexDirection: "column",
                             alignItems: "center", justifyContent: "center",
-                            gap: 2, opacity: 0.38,
+                            gap: 2, opacity: forSale ? 0.55 : 0.38,
                           }}>
                             <span style={{ fontFamily: "var(--condensed)", fontWeight: 900, fontSize: 14, color: "#555" }}>{n}</span>
                             <span style={{ fontSize: 6.5, color: "#888", fontFamily: "var(--condensed)", letterSpacing: 0.5 }}>{t.album_paste}</span>
+                          </div>
+                        )}
+                        {forSale && (
+                          <div style={{
+                            position: "absolute", bottom: 0, left: 0, right: 0,
+                            background: "rgba(34,197,94,.9)",
+                            color: "#030b18", fontSize: 7, fontWeight: 900,
+                            padding: "3px 0", fontFamily: "var(--condensed)",
+                            letterSpacing: 0.3, textAlign: "center",
+                          }}>
+                            {t.album_in_market} {minPrice}⚡
                           </div>
                         )}
                       </div>
@@ -569,12 +602,15 @@ function AlbumCover({
   albumComplete, albumClaimed, onClaimAlbum,
   fwcComplete, fwcClaimed, onClaimFwc,
   identity, busy = false,
+  availableMap = new Map(), onGoToMarket,
 }: {
   ownership: Ownership; total: number; owned: number; onZoom: (n: number) => void;
   albumComplete: boolean; albumClaimed: boolean; onClaimAlbum: () => void;
   fwcComplete: boolean; fwcClaimed: boolean; onClaimFwc: () => void;
   identity?: Identity;
   busy?: boolean;
+  availableMap?: Map<number, number>;
+  onGoToMarket?: (n: number) => void;
 }) {
   const { t } = useLang();
   const pct = Math.round((owned / total) * 100);
@@ -809,37 +845,45 @@ function AlbumCover({
         }}>
           {t.album_fwc_special}
         </div>
-        <FwcGrid ownership={ownership} onZoom={onZoom} />
+        <FwcGrid ownership={ownership} onZoom={onZoom} availableMap={availableMap} onGoToMarket={onGoToMarket} />
       </div>
     </div>
   );
 }
 
 // Muestra las 20 figuras FWC en un grid compacto dentro de la portada
-function FwcGrid({ ownership, onZoom }: { ownership: Ownership; onZoom: (n: number) => void }) {
+function FwcGrid({ ownership, onZoom, availableMap = new Map(), onGoToMarket }: {
+  ownership: Ownership; onZoom: (n: number) => void;
+  availableMap?: Map<number, number>; onGoToMarket?: (n: number) => void;
+}) {
   const { t } = useLang();
   const fwcNums = PAGES[0].numbers;
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 5 }}>
       {fwcNums.map((n) => {
-        const count = ownership[n] || 0;
-        const has   = count > 0;
-        const r     = RARITY_META[CATALOG[n].rarity];
+        const count    = ownership[n] || 0;
+        const has      = count > 0;
+        const r        = RARITY_META[CATALOG[n].rarity];
+        const minPrice = !has ? (availableMap.get(n) ?? null) : null;
+        const forSale  = minPrice !== null;
         return (
           <div
             key={n}
             data-figu-slot={n}
             className={has ? "pop-in" : ""}
-            onClick={() => has && onZoom(n)}
+            onClick={() => {
+              if (has) onZoom(n);
+              else if (forSale && onGoToMarket) onGoToMarket(n);
+            }}
             style={{
               aspectRatio: "3/4",
               borderRadius: 5,
-              border: has ? `2px solid ${r.ring}` : "1.5px dashed #bbb",
+              border: has ? `2px solid ${r.ring}` : forSale ? "1.5px dashed #22c55e" : "1.5px dashed #bbb",
               boxShadow: has ? `0 2px 10px ${r.glow}` : "none",
               position: "relative",
               overflow: "hidden",
               background: has ? "transparent" : "rgba(0,0,0,.04)",
-              cursor: has ? "pointer" : "default",
+              cursor: has || forSale ? "pointer" : "default",
             }}
           >
             {has ? (
@@ -849,10 +893,21 @@ function FwcGrid({ ownership, onZoom }: { ownership: Ownership; onZoom: (n: numb
                 width: "100%", height: "100%",
                 display: "flex", flexDirection: "column",
                 alignItems: "center", justifyContent: "center",
-                gap: 1, opacity: 0.35,
+                gap: 1, opacity: forSale ? 0.55 : 0.35,
               }}>
                 <span style={{ fontFamily: "var(--condensed)", fontWeight: 900, fontSize: 11, color: "#555" }}>{n}</span>
                 <span style={{ fontSize: 5.5, color: "#888", fontFamily: "var(--condensed)", letterSpacing: 0.5 }}>{t.album_paste}</span>
+              </div>
+            )}
+            {forSale && (
+              <div style={{
+                position: "absolute", bottom: 0, left: 0, right: 0,
+                background: "rgba(34,197,94,.9)",
+                color: "#030b18", fontSize: 6, fontWeight: 900,
+                padding: "2px 0", fontFamily: "var(--condensed)",
+                letterSpacing: 0.3, textAlign: "center",
+              }}>
+                🛒 {minPrice}⚡
               </div>
             )}
           </div>

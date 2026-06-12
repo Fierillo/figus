@@ -53,6 +53,7 @@ function HomeInner() {
   const [revealMarks, setRevealMarks] = useState<PackMark[]>([]);
   // Pedido de foco para el álbum: salta a la página que contiene la figurita.
   const [albumFocus, setAlbumFocus] = useState<{ num: number; token: number } | null>(null);
+  const [marketFocusSticker, setMarketFocusSticker] = useState<number | null>(null);
   const focusToken = useRef(0);
   // Resumen del lote al terminar la cola (modal con nuevas y repetidas).
   const [revealSummary, setRevealSummary] = useState<RevealResult[] | null>(null);
@@ -1032,6 +1033,8 @@ function HomeInner() {
                   onSell={listForSale}
                   claimedPages={claimedPages}
                   myListings={listings.filter(l => l.seller === pubkey)}
+                  otherListings={visibleListings.filter(l => l.seller !== pubkey)}
+                  onGoToMarket={(n) => { setMarketFocusSticker(n); setTab("market"); }}
                   identity={identity ?? undefined}
                   focusSticker={albumFocus}
                   busy={busy}
@@ -1148,6 +1151,7 @@ function HomeInner() {
                   onBuy={buyListing}
                   onCancel={cancelListing}
                   onCancelAll={cancelAllListings}
+                  focusSticker={marketFocusSticker}
                 />
               </div>
             )}

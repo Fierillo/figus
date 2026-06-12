@@ -18,6 +18,7 @@ export function Market({
   onBuy,
   onCancel,
   onCancelAll,
+  focusSticker = null,
 }: {
   listings: Listing[];
   settlements: Settlement[];
@@ -26,6 +27,7 @@ export function Market({
   onBuy: (listing: Listing) => void;
   onCancel: (listing: Listing) => void;
   onCancelAll?: (listings: Listing[]) => Promise<void>;
+  focusSticker?: number | null;
 }) {
   const { t } = useLang();
   const [zoomed, setZoomed] = useState<Listing | null>(null);
@@ -33,7 +35,12 @@ export function Market({
   const [ownerFilter, setOwnerFilter] = useState<"all" | "missing" | "have">("all");
   const [sortBy, setSortBy] = useState<"none" | "price_asc" | "price_desc">("none");
   const [teamFilter, setTeamFilter] = useState<string | null>(null);
+  const [stickerFilter, setStickerFilter] = useState<number | null>(null);
   const [showAllMine, setShowAllMine] = useState(false);
+
+  useEffect(() => {
+    if (focusSticker !== null) setStickerFilter(focusSticker);
+  }, [focusSticker]);
 
   const teams = PAGES.filter((p) => p.id !== "fwc").map((p) => ({ id: p.id, name: p.name.split(" · ")[1] ?? p.id })).sort((a, b) => a.name.localeCompare(b.name));
 
@@ -44,6 +51,9 @@ export function Market({
     if (ownerFilter === "have")    return (myOwnership[l.stickerNum] ?? 0) > 0;
     return true;
   });
+  if (stickerFilter !== null) {
+    others = others.filter((l) => l.stickerNum === stickerFilter);
+  }
   if (teamFilter) {
     others = others.filter((l) => CATALOG[l.stickerNum]?.team === teamFilter);
   }
@@ -172,6 +182,28 @@ export function Market({
                   {showAllMine ? `▲ VER MENOS` : `▼ VER TODAS (${mine.length})`}
                 </button>
               )}
+            </div>
+          )}
+
+          {/* Chip de figurita específica (desde álbum) */}
+          {stickerFilter !== null && (
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+              <div style={{
+                display: "flex", alignItems: "center", gap: 6,
+                background: "rgba(34,197,94,.15)", border: "1px solid rgba(34,197,94,.5)",
+                borderRadius: 99, padding: "4px 10px",
+              }}>
+                <span style={{ fontFamily: "var(--condensed)", fontWeight: 900, fontSize: 11, color: "#22c55e" }}>
+                  🛒 #{stickerFilter} — {CATALOG[stickerFilter]?.name ?? ""}
+                </span>
+                <button
+                  onClick={() => setStickerFilter(null)}
+                  style={{
+                    background: "none", border: "none", cursor: "pointer",
+                    color: "#22c55e", fontWeight: 900, fontSize: 13, lineHeight: 1, padding: 0,
+                  }}
+                >×</button>
+              </div>
             </div>
           )}
 
