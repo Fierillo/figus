@@ -27,48 +27,63 @@ const MD_PAIRS = [
   [[0,3],[1,2]],
 ] as const;
 
-// ─── Group stage schedule ─────────────────────────────────────────────────────
-const MD1_DATES = [
-  "11 jun","12 jun","13 jun","13 jun",
-  "14 jun","14 jun","15 jun","15 jun",
-  "16 jun","16 jun","17 jun","17 jun",
-];
-const MD2_DATES = [
-  "19 jun","20 jun","21 jun","21 jun",
-  "22 jun","22 jun","23 jun","23 jun",
-  "24 jun","24 jun","25 jun","25 jun",
-];
-const MD3_DATES = [
-  "28 jun","28 jun","28 jun",
-  "29 jun","29 jun","29 jun",
-  "30 jun","30 jun","30 jun",
-  "1 jul","1 jul","1 jul",
-];
-const MD3_UTC_HOURS = [16, 19, 22];
-
+// ─── Group stage schedule (FIFA WC 2026 official) ────────────────────────────
 type ScheduleInfo = { date: string; utc: string; art: string; simultaneous: boolean };
 
+/** [date, artHour, artMinute] por (group, matchday, matchIdx) — horarios ART */
+const SCHEDULE_TABLE: Record<string, Array<{ date: string; artH: number; artM: number }>> = {
+  // ── Matchday 1 ──
+  "A:0": [{ date: "11 jun", artH: 16, artM: 0 }, { date: "11 jun", artH: 23, artM: 0 }],
+  "B:0": [{ date: "12 jun", artH: 16, artM: 0 }, { date: "13 jun", artH: 16, artM: 0 }],
+  "C:0": [{ date: "13 jun", artH: 19, artM: 0 }, { date: "13 jun", artH: 22, artM: 0 }],
+  "D:0": [{ date: "12 jun", artH: 22, artM: 0 }, { date: "14 jun", artH:  1, artM: 0 }],
+  "E:0": [{ date: "14 jun", artH: 14, artM: 0 }, { date: "14 jun", artH: 20, artM: 0 }],
+  "F:0": [{ date: "14 jun", artH: 17, artM: 0 }, { date: "14 jun", artH: 23, artM: 0 }],
+  "G:0": [{ date: "15 jun", artH: 16, artM: 0 }, { date: "15 jun", artH: 22, artM: 0 }],
+  "H:0": [{ date: "15 jun", artH: 13, artM: 0 }, { date: "15 jun", artH: 19, artM: 0 }],
+  "I:0": [{ date: "16 jun", artH: 16, artM: 0 }, { date: "16 jun", artH: 19, artM: 0 }],
+  "J:0": [{ date: "16 jun", artH: 22, artM: 0 }, { date: "17 jun", artH:  1, artM: 0 }],
+  "K:0": [{ date: "17 jun", artH: 14, artM: 0 }, { date: "17 jun", artH: 23, artM: 0 }],
+  "L:0": [{ date: "17 jun", artH: 17, artM: 0 }, { date: "17 jun", artH: 20, artM: 0 }],
+  // ── Matchday 2 ──
+  "A:1": [{ date: "18 jun", artH: 13, artM: 0 }, { date: "18 jun", artH: 22, artM: 0 }],
+  "B:1": [{ date: "18 jun", artH: 16, artM: 0 }, { date: "18 jun", artH: 19, artM: 0 }],
+  "C:1": [{ date: "19 jun", artH: 19, artM: 0 }, { date: "19 jun", artH: 21, artM: 30 }],
+  "D:1": [{ date: "19 jun", artH: 16, artM: 0 }, { date: "20 jun", artH:  0, artM: 0 }],
+  "E:1": [{ date: "20 jun", artH: 17, artM: 0 }, { date: "20 jun", artH: 21, artM: 0 }],
+  "F:1": [{ date: "20 jun", artH: 14, artM: 0 }, { date: "21 jun", artH:  1, artM: 0 }],
+  "G:1": [{ date: "21 jun", artH: 16, artM: 0 }, { date: "21 jun", artH: 22, artM: 0 }],
+  "H:1": [{ date: "21 jun", artH: 13, artM: 0 }, { date: "21 jun", artH: 19, artM: 0 }],
+  "I:1": [{ date: "22 jun", artH: 18, artM: 0 }, { date: "22 jun", artH: 21, artM: 0 }],
+  "J:1": [{ date: "22 jun", artH: 14, artM: 0 }, { date: "23 jun", artH:  0, artM: 0 }],
+  "K:1": [{ date: "23 jun", artH: 14, artM: 0 }, { date: "23 jun", artH: 23, artM: 0 }],
+  "L:1": [{ date: "23 jun", artH: 17, artM: 0 }, { date: "23 jun", artH: 20, artM: 0 }],
+  // ── Matchday 3 (simultáneos) ──
+  "A:2": [{ date: "24 jun", artH: 22, artM: 0 }, { date: "24 jun", artH: 22, artM: 0 }],
+  "B:2": [{ date: "24 jun", artH: 16, artM: 0 }, { date: "24 jun", artH: 16, artM: 0 }],
+  "C:2": [{ date: "24 jun", artH: 19, artM: 0 }, { date: "24 jun", artH: 19, artM: 0 }],
+  "D:2": [{ date: "25 jun", artH: 23, artM: 0 }, { date: "25 jun", artH: 23, artM: 0 }],
+  "E:2": [{ date: "25 jun", artH: 17, artM: 0 }, { date: "25 jun", artH: 17, artM: 0 }],
+  "F:2": [{ date: "25 jun", artH: 20, artM: 0 }, { date: "25 jun", artH: 20, artM: 0 }],
+  "G:2": [{ date: "27 jun", artH:  0, artM: 0 }, { date: "27 jun", artH:  0, artM: 0 }],
+  "H:2": [{ date: "26 jun", artH: 21, artM: 0 }, { date: "26 jun", artH: 21, artM: 0 }],
+  "I:2": [{ date: "26 jun", artH: 16, artM: 0 }, { date: "26 jun", artH: 16, artM: 0 }],
+  "J:2": [{ date: "27 jun", artH: 23, artM: 0 }, { date: "27 jun", artH: 23, artM: 0 }],
+  "K:2": [{ date: "27 jun", artH: 20, artM: 30 }, { date: "27 jun", artH: 20, artM: 30 }],
+  "L:2": [{ date: "27 jun", artH: 18, artM: 0 }, { date: "27 jun", artH: 18, artM: 0 }],
+};
+
 function getSchedule(group: string, mdIdx: number, matchIdx: number): ScheduleInfo {
-  const gIdx = GROUPS_ORDER.indexOf(group);
-  if (gIdx < 0) return { date: "—", utc: "—", art: "—", simultaneous: false };
-  let date: string;
-  let utcH: number;
-  let simultaneous = false;
-  if (mdIdx === 0) {
-    date = MD1_DATES[gIdx]; utcH = matchIdx === 0 ? 16 : 20;
-  } else if (mdIdx === 1) {
-    date = MD2_DATES[gIdx]; utcH = matchIdx === 0 ? 16 : 20;
-  } else {
-    date = MD3_DATES[gIdx]; utcH = MD3_UTC_HOURS[gIdx % 3]; simultaneous = true;
-  }
-  const artH = utcH;          // stored values are ART (Argentina) times
-  const utcH2 = utcH + 3;    // UTC = ART + 3  (Argentina is UTC-3)
-  return {
-    date,
-    utc: `${String(utcH2).padStart(2,"0")}:00`,
-    art: `${String(artH).padStart(2,"0")}:00`,
-    simultaneous,
-  };
+  const entries = SCHEDULE_TABLE[`${group}:${mdIdx}`];
+  if (!entries?.[matchIdx]) return { date: "—", utc: "—", art: "—", simultaneous: false };
+  const { date, artH, artM } = entries[matchIdx];
+  const mm = String(artM).padStart(2, "0");
+  const art = `${String(artH).padStart(2, "0")}:${mm}`;
+  let utcH = artH + 3; if (utcH >= 24) utcH -= 24;
+  const utc = `${String(utcH).padStart(2, "0")}:${mm}`;
+  const simultaneous = entries.length === 2
+    && entries[0].artH === entries[1].artH && entries[0].artM === entries[1].artM;
+  return { date, utc, art, simultaneous };
 }
 
 // ─── Venues (group stage) ─────────────────────────────────────────────────────
