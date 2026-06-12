@@ -10,7 +10,9 @@
 import fs from "fs";
 import path from "path";
 
-const LEDGER_DIR  = path.join(process.cwd(), "data");
+// En Vercel el filesystem es read-only; usar /tmp que siempre es escribible.
+// En VPS/local usar data/ junto al resto del estado del issuer.
+const LEDGER_DIR  = process.env.VERCEL ? "/tmp" : path.join(process.cwd(), "data");
 const LEDGER_PATH = path.join(LEDGER_DIR, "claims.json");
 
 type ClaimStatus = "pending" | "confirmed";

@@ -11,6 +11,15 @@ const REWARD_PAGE_SATS  = Number(process.env.REWARD_PAGE_SATS  || "210");
 const REWARD_ALBUM_SATS = Number(process.env.REWARD_ALBUM_SATS || "5000");
 
 export async function POST(req: NextRequest) {
+  try {
+    return await handleClaim(req);
+  } catch (e: any) {
+    console.error("[claim] unhandled error:", e);
+    return err(`Error interno: ${e?.message ?? "desconocido"}`, 500);
+  }
+}
+
+async function handleClaim(req: NextRequest) {
   // ── Parse body ──────────────────────────────────────────────────────────────
   let body: { event?: unknown; pageId?: unknown };
   try { body = await req.json(); }
