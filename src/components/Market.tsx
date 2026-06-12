@@ -35,7 +35,7 @@ export function Market({
   const [teamFilter, setTeamFilter] = useState<string | null>(null);
   const [showAllMine, setShowAllMine] = useState(false);
 
-  const teams = PAGES.filter((p) => p.id !== "fwc").map((p) => ({ id: p.id, name: p.name.split(" · ")[1] ?? p.id }));
+  const teams = PAGES.filter((p) => p.id !== "fwc").map((p) => ({ id: p.id, name: p.name.split(" · ")[1] ?? p.id })).sort((a, b) => a.name.localeCompare(b.name));
 
   const mine  = listings.filter((l) => l.seller === myPubkey);
   let others = listings.filter((l) => {
