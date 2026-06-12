@@ -9,7 +9,12 @@ import FACES from "@/lib/faces-manifest.json";
 
 function teamPos(num: number): number | null {
   if (num <= 20) return null;
+  if (num >= 981) return null; // DT stickers
   return ((num - 21) % 20) + 1; // 1-based within team (1=shield, 2=GK, 13=photo, rest=players)
+}
+
+function isManager(num: number): boolean {
+  return num >= 981 && num <= 1028;
 }
 
 function silhouetteType(num: number): string {
@@ -24,6 +29,7 @@ function silhouetteType(num: number): string {
     if (FWC_CHAMPION_TEAMS[num])                          return "champion";
     return "globe";
   }
+  if (isManager(num)) return "coach";
   const pos = teamPos(num)!;
   if (pos === 1) return "shield";
   if (pos === 2) return "keeper";
@@ -34,6 +40,7 @@ function silhouetteType(num: number): string {
 
 function positionLabel(num: number): string {
   if (num <= 20) return "FWC";
+  if (isManager(num)) return "DT";
   const pos = teamPos(num)!;
   if (pos === 1) return "ESCUDO";
   if (pos === 2) return "POR";
@@ -311,6 +318,28 @@ function Silhouette({ type, light }: { type: string; light: boolean }) {
     </svg>
   );
 
+  if (type === "coach") return (
+    // Coach/DT silhouette with clipboard
+    <svg viewBox="0 0 60 80" {...props}>
+      {/* Head */}
+      <circle cx="30" cy="18" r="10" fill={f}/>
+      {/* Body (suit) */}
+      <path d="M18,30 L42,30 L44,60 L16,60 Z" fill={f}/>
+      {/* Lapels */}
+      <path d="M24,30 L30,48 L36,30" fill="none" stroke={f2} strokeWidth="1.5"/>
+      {/* Clipboard */}
+      <rect x="20" y="50" width="20" height="16" rx="2" fill={f2}/>
+      <rect x="26" y="48" width="8" height="4" rx="1" fill={f}/>
+      {/* Lines on clipboard */}
+      <line x1="23" y1="55" x2="37" y2="55" stroke={f} strokeWidth="1" opacity="0.5"/>
+      <line x1="23" y1="58" x2="37" y2="58" stroke={f} strokeWidth="1" opacity="0.5"/>
+      <line x1="23" y1="61" x2="32" y2="61" stroke={f} strokeWidth="1" opacity="0.5"/>
+      {/* Whistle */}
+      <circle cx="42" cy="26" r="3" fill={f2}/>
+      <line x1="42" y1="23" x2="42" y2="18" stroke={f2} strokeWidth="1.5"/>
+    </svg>
+  );
+
   // globe / FWC generic
   return (
     <svg viewBox="0 0 60 80" {...props}>
@@ -412,7 +441,7 @@ export function StickerFace({
   const ostrichTeam = sType === "champion" ? (championCode ?? s.team) : s.team;
 
   // Real player face downloaded by scripts/fetch-faces.ts (manifest = positions on disk)
-  const facePos = teamPos(num);
+  const facePos = isManager(num) ? 21 : teamPos(num);
   const hasFace =
     num > 20 && facePos !== null &&
     ((FACES as Record<string, number[]>)[s.team] ?? []).includes(facePos);

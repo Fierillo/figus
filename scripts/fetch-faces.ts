@@ -3,6 +3,7 @@
 //   npm run faces -- --team cuw          un equipo (o lista: --team cuw,arg)
 //   npm run faces -- --all               los 48 equipos
 //   npm run faces -- --all --squads      fotos del equipo (pos 13) en vez de jugadores
+//   npm run faces -- --all --managers    fotos de DTs (pos 21)
 //   npm run faces -- --all --missing-only  reintenta solo missing/low_confidence
 //   npm run faces -- --team cuw --force  re-descarga aunque el archivo exista
 //   npm run faces -- --nums 363,365,373  re-procesa esas figuritas (fuerza re-descarga)
@@ -19,7 +20,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { CATALOG, teamName, TEAMS } from "../src/lib/catalog";
+import { CATALOG, teamName, TEAMS, TEAM_MANAGERS } from "../src/lib/catalog";
 
 const ROOT = path.join(__dirname, "..");
 const FACES_DIR = path.join(ROOT, "public", "faces");
@@ -214,12 +215,19 @@ async function searchTheSportsDB(job: Job): Promise<Candidate | null> {
 async function searchWikipedia(job: Job): Promise<Candidate | null> {
   const demonyms = [...(DEMONYMS[job.team] ?? []), ...nationalities(job.team)].map(norm);
   const demonym = (DEMONYMS[job.team] ?? [])[0] ?? "";
+  const isManager = job.pos === 21;
   // Dos queries: con nacionalidad (apunta al jugador correcto entre homónimos)
-  // y la genérica como respaldo.
-  const queries = [
-    `${stripDiacritics(job.name)} ${demonym} footballer`.replace(/\s+/g, " ").trim(),
-    `${stripDiacritics(job.name)} footballer`,
-  ];
+  // y la genérica como respaldo. Para managers busca "football manager/coach".
+  const queries = isManager
+    ? [
+        `${stripDiacritics(job.name)} ${demonym} football manager`.replace(/\s+/g, " ").trim(),
+        `${stripDiacritics(job.name)} football coach`,
+        `${stripDiacritics(job.name)}`,
+      ]
+    : [
+        `${stripDiacritics(job.name)} ${demonym} footballer`.replace(/\s+/g, " ").trim(),
+        `${stripDiacritics(job.name)} footballer`,
+      ];
 
   for (const query of queries) {
     const url =
@@ -240,7 +248,7 @@ async function searchWikipedia(job: Job): Promise<Candidate | null> {
 
     // Preferir una página cuyo "description" mencione la nacionalidad del equipo
     const valid = pages.filter(
-      (p) => p.thumbnail?.source && /footballer|soccer|football player/.test(norm(p.description))
+      (p) => p.thumbnail?.source && /footballer|soccer|football player|football manager|football coach|soccer coach/.test(norm(p.description))
     );
     const natPage = valid.find((p) => demonyms.some((d) => norm(p.description).includes(d)));
     const page = natPage ?? valid[0];
@@ -485,6 +493,7 @@ async function main() {
   const missingOnly = argv.includes("--missing-only");
   const all = argv.includes("--all");
   const squadsMode = argv.includes("--squads"); // solo fotos de equipo (pos 13)
+  const managersMode = argv.includes("--managers"); // fotos de DTs (pos 21)
   const teamArgIdx = argv.indexOf("--team");
   const teamArg = teamArgIdx >= 0 ? argv[teamArgIdx + 1] : null;
   const numsArgIdx = argv.indexOf("--nums");
@@ -504,26 +513,35 @@ async function main() {
       process.exit(1);
     }
   } else {
-    console.error("Uso: npm run faces -- --team <code>[,<code>...] | --all | --nums <n,n,...>  [--squads] [--force] [--missing-only]");
+    console.error("Uso: npm run faces -- --team <code>[,<code>...] | --all | --nums <n,n,...>  [--squads] [--managers] [--force] [--missing-only]");
     process.exit(1);
   }
 
-  // Jugadores: pos 2-12 y 14-20 · Squads: pos 13 (1=escudo)
-  const jobs: Job[] = Object.values(CATALOG)
-    .filter((s) => s.number > 20 && targetTeams.includes(s.team))
-    .map((s) => ({
-      team: s.team,
-      pos: ((s.number - 21) % 20) + 1,
-      num: s.number,
-      name: s.name,
-    }))
-    .filter((j) =>
-      nums
-        ? j.pos !== 1 && nums.includes(j.num) // --nums: jugadores y fotos de equipo
-        : squadsMode
-          ? j.pos === 13
-          : j.pos !== 1 && j.pos !== 13
-    )
+  // Jugadores: pos 2-12 y 14-20 · Squads: pos 13 (1=escudo) · Managers: pos 21
+  const jobs: Job[] = managersMode
+    ? targetTeams
+        .filter((t) => TEAM_MANAGERS[t])
+        .map((t) => ({
+          team: t,
+          pos: 21,
+          num: 981 + Object.keys(TEAM_MANAGERS).indexOf(t),
+          name: TEAM_MANAGERS[t],
+        }))
+    : Object.values(CATALOG)
+        .filter((s) => s.number > 20 && s.number <= 980 && targetTeams.includes(s.team))
+        .map((s) => ({
+          team: s.team,
+          pos: ((s.number - 21) % 20) + 1,
+          num: s.number,
+          name: s.name,
+        }))
+        .filter((j) =>
+          nums
+            ? j.pos !== 1 && nums.includes(j.num) // --nums: jugadores y fotos de equipo
+            : squadsMode
+              ? j.pos === 13
+              : j.pos !== 1 && j.pos !== 13
+        )
     .sort((a, b) => a.num - b.num);
 
   const report: Report = fs.existsSync(REPORT_PATH)
@@ -533,7 +551,7 @@ async function main() {
     ? JSON.parse(fs.readFileSync(OVERRIDES_PATH, "utf8"))
     : {};
 
-  console.log(`Equipos: ${targetTeams.length} · jugadores: ${jobs.length}\n`);
+  console.log(`Equipos: ${targetTeams.length} · ${managersMode ? "DTs" : "jugadores"}: ${jobs.length}\n`);
   let done = 0;
 
   for (const job of jobs) {

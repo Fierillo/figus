@@ -106,6 +106,58 @@ const TEAM_PLAYERS: Record<string, string[]> = {
   pan: ["Escudo","Orlando Mosquera","Luis Mejia","Fidel Escobar","Andrés Andrade","Michael Amir Murillo","Eric Davis","Jose Córdoba","César Blackman","Cristian Martínez","Aníbal Godoy","Adalberto Carrasquilla","Foto del equipo","Édgar Bárcenas","Carlos Harvey","Ismael Díaz","Jose Fajardo","Cecilio Waterman","Jose Luis Rodríguez","Alberto Quintero"],
 };
 
+// ─── DT / Managers ───────────────────────────────────────────────────────────
+export const TEAM_MANAGERS: Record<string, string> = {
+  mex: "Javier Aguirre",
+  rsa: "Hugo Broos",
+  kor: "Hong Myung-bo",
+  cze: "Miroslav Koubek",
+  can: "Jesse Marsch",
+  bih: "Sergej Barbarez",
+  qat: "Julen Lopetegui",
+  sui: "Murat Yakin",
+  bra: "Carlo Ancelotti",
+  mar: "Mohamed Ouahbi",
+  hai: "Sébastien Migné",
+  sco: "Steve Clarke",
+  usa: "Mauricio Pochettino",
+  par: "Gustavo Alfaro",
+  aus: "Tony Popovic",
+  tur: "Vincenzo Montella",
+  ger: "Julian Nagelsmann",
+  cuw: "Dick Advocaat",
+  civ: "Emerse Faé",
+  ecu: "Sebastián Beccacece",
+  ned: "Ronald Koeman",
+  jpn: "Hajime Moriyasu",
+  swe: "Graham Potter",
+  tun: "Sabri Lamouchi",
+  bel: "Rudi Garcia",
+  egy: "Hossam Hassan",
+  irn: "Amir Ghalenoei",
+  nzl: "Darren Bazeley",
+  esp: "Luis de la Fuente",
+  cpv: "Bubista",
+  ksa: "Georgios Donis",
+  uru: "Marcelo Bielsa",
+  fra: "Didier Deschamps",
+  sen: "Pape Thiaw",
+  irq: "Graham Arnold",
+  nor: "Ståle Solbakken",
+  arg: "Lionel Scaloni",
+  alg: "Vladimir Petković",
+  aut: "Ralf Rangnick",
+  jor: "Jamal Sellami",
+  por: "Roberto Martínez",
+  cod: "Sébastien Desabre",
+  uzb: "Fabio Cannavaro",
+  col: "Néstor Lorenzo",
+  eng: "Thomas Tuchel",
+  cro: "Zlatko Dalić",
+  gha: "Carlos Queiroz",
+  pan: "Thomas Christiansen",
+};
+
 // ─── FWC intro stickers (20 total, global nums 1-20) ─────────────────────────
 const FWC_NAMES: string[] = [
   "Logo Figu",         //  1
@@ -383,6 +435,14 @@ export const CATALOG: Record<number, StickerTemplate> = (() => {
 
       out[n] = { number: n, name, team: code, page: code, rarity };
     });
+  });
+
+  // DT / Managers (981-1028)
+  TEAM_ORDER.forEach((code, teamIdx) => {
+    const name = TEAM_MANAGERS[code];
+    if (!name) return;
+    const n = 981 + teamIdx;
+    out[n] = { number: n, name, team: code, page: code, rarity: "shiny" };
   });
 
   return out;
