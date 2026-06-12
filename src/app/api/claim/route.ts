@@ -275,29 +275,23 @@ async function fetchOwnedStickers(pubkey: string, issuerPubkey: string, required
   // el issuer directamente. Es la fuente de verdad más confiable.
   const issuerApiUrl    = process.env.ISSUER_API_URL;
   const issuerApiSecret = process.env.ISSUER_API_SECRET;
-  console.log("[fetchOwned] issuerApiUrl:", issuerApiUrl ?? "NOT SET");
   if (issuerApiUrl && issuerApiSecret) {
     try {
       const res = await fetch(`${issuerApiUrl}/ownership/${pubkey}`, {
         headers: { Authorization: `Bearer ${issuerApiSecret}` },
         signal: AbortSignal.timeout(8000),
       });
-      console.log("[fetchOwned] API status:", res.status);
       if (res.ok) {
         const data = await res.json() as Record<string, number>;
-        console.log("[fetchOwned] API stickers:", Object.keys(data).length, "owned of", requiredNums.length, "required");
-        console.log("[fetchOwned] required nums:", requiredNums.join(","));
-        const missing: number[] = [];
         for (const num of requiredNums) {
           if ((data[num] ?? 0) > 0) owned.add(num);
-          else missing.push(num);
         }
-        console.log("[fetchOwned] missing:", missing.join(","));
-        return owned;
+        // Si el issuer API tiene todas las requeridas, retornar inmediatamente.
+        // Si faltan algunas, continuar al relay: ownership.json puede estar
+        // desincronizado (stickers otorgados mientras el issuer estaba caído).
+        if (requiredNums.every((n) => owned.has(n))) return owned;
       }
-    } catch (e) {
-      console.error("[fetchOwned] API error:", e);
-    }
+    } catch { /* issuer API no disponible — caer al relay */ }
   }
 
   // ── Opción B: cache local (solo funciona si Next.js corre en el mismo VPS) ─
