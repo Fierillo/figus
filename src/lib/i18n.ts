@@ -93,6 +93,12 @@ const T = {
     market_filter_have:    "La tengo",
     market_view_listings: "COMPRAR/VENDER",
     market_view_traders:  "INTERCAMBIAR",
+    market_sort:          "Ordenar",
+    market_sort_none:     "Sin orden",
+    market_sort_asc:      "Menor precio",
+    market_sort_desc:     "Mayor precio",
+    market_filter_team:   "Equipo",
+    market_filter_all_teams: "Todos",
 
     // Traders / Trade
     traders_title:              "Intercambios (PROXIMAMENTE)",
@@ -462,6 +468,12 @@ const T = {
     market_filter_have:    "Have it",
     market_view_listings: "BUY/SELL",
     market_view_traders:  "TRADE",
+    market_sort:          "Sort",
+    market_sort_none:     "No sort",
+    market_sort_asc:      "Lowest price",
+    market_sort_desc:     "Highest price",
+    market_filter_team:   "Team",
+    market_filter_all_teams: "All",
 
     // Traders / Trade
     traders_title:              "Trades",
