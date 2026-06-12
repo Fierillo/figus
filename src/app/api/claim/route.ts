@@ -286,9 +286,13 @@ async function fetchOwnedStickers(pubkey: string, issuerPubkey: string, required
       if (res.ok) {
         const data = await res.json() as Record<string, number>;
         console.log("[fetchOwned] API stickers:", Object.keys(data).length, "owned of", requiredNums.length, "required");
+        console.log("[fetchOwned] required nums:", requiredNums.join(","));
+        const missing: number[] = [];
         for (const num of requiredNums) {
           if ((data[num] ?? 0) > 0) owned.add(num);
+          else missing.push(num);
         }
+        console.log("[fetchOwned] missing:", missing.join(","));
         return owned;
       }
     } catch (e) {
