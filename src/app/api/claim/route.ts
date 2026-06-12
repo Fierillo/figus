@@ -124,6 +124,7 @@ async function handleClaim(req: NextRequest) {
     requiredNums = ALL_NUMBERS;
     amountSats   = REWARD_ALBUM_SATS;
   } else {
+    if (pageId === "managers") return err("La página de DTs no tiene premio individual", 400);
     const page = PAGES.find((p) => p.id === pageId);
     if (!page) return err("Página no encontrada", 400);
     requiredNums = page.numbers;

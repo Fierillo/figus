@@ -442,7 +442,7 @@ export const CATALOG: Record<number, StickerTemplate> = (() => {
     const name = TEAM_MANAGERS[code];
     if (!name) return;
     const n = 981 + teamIdx;
-    out[n] = { number: n, name, team: code, page: code, rarity: "shiny" };
+    out[n] = { number: n, name, team: code, page: "managers", rarity: "shiny" };
   });
 
   return out;
@@ -462,6 +462,11 @@ export const PAGES: Page[] = [
     name: `Grupo ${group} · ${name}`,
     numbers: ALL_NUMBERS.filter((x) => CATALOG[x].page === code),
   })),
+  {
+    id: "managers",
+    name: "Técnicos / DTs",
+    numbers: ALL_NUMBERS.filter((x) => CATALOG[x].page === "managers"),
+  },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
