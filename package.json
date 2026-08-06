@@ -2,6 +2,10 @@
   "name": "figus",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.20.0+sha512-mm8zCpW2ZEbqCI+vFSFAWooB8H/ecTVmVjf7VLUu0NnN+ZbCPhfN7Rvy6N1CSVYrFEmK4FoRLIvY0Bu0Wa/7g==",
+  "engines": {
+    "node": ">=22.14.0"
+  },
   "description": "Álbum de figuritas del Mundial nativo de Nostr + Lightning — Hackatón ZAPS La Crypta",
   "scripts": {
     "dev": "next dev",
@@ -20,6 +24,7 @@
   "dependencies": {
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
+    "@noble/hashes": "^2.0.1",
     "html2canvas": "^1.4.1",
     "next": "14.2.5",
     "nostr-tools": "^2.7.2",
@@ -27,6 +32,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "^0.184.0",
+    "three-stdlib": "^2.36.1",
     "ws": "^8.21.0"
   },
   "devDependencies": {
